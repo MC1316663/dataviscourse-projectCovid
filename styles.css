@@ -1,0 +1,62 @@
+@import url('https://fonts.googleapis.com/css2?family=Roboto&display=swap');
+
+* {
+    font-family: 'Roboto', sans-serif;
+}
+
+/* Layout */
+#Introduction{
+  /* float: left; */
+  padding: 15px;
+  border: 5px solid rgb(238, 236, 236);
+  /* width: 100%; */
+  background-color: white;
+  opacity: 0.9;
+  /* height: 22px; */
+  vertical-align: middle;
+  font-size: 25px;
+  margin: auto;  
+}
+
+#left-graph{
+  width: 35%;
+  height: 750px; /* delete later? */
+  border: 5px solid rgb(238, 236, 236);
+  background-color: white;
+  padding: 15px;
+  float: left;
+
+}
+
+#middle-map{
+  width: 38%;
+  height: 750px;
+  border: 5px solid rgb(238, 236, 236);
+  background-color: white;
+  padding: 15px;
+  float: left; 
+}
+
+#MapAttribute{
+  width: 19%;
+  height: 750px;
+  border: 5px solid rgb(238, 236, 236);
+  background-color: white;
+  padding: 15px;
+  float: right; 
+}
+
+#bottom-info{
+  /* position: absolute; */
+  position: absolute;
+  bottom: 0;
+  padding: 15px;
+  width: 97.1%;
+  height: 30px;
+  border: 5px solid rgb(238, 236, 236);
+  border-right: 5px;
+  background-color: white;
+  /* width: 100%; */
+  /* height: 10px; */
+  margin: auto;  
+}
