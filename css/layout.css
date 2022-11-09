@@ -1,0 +1,136 @@
+@import url('https://fonts.googleapis.com/css2?family=Roboto&display=swap');
+
+* {
+    font-family: sans-serif, 'Roboto';
+    color: #595959;
+}
+
+body{
+  margin: 0;
+}
+
+/*global layout*/
+#container{
+  width: 100vw;
+  height: 100vh;
+  min-width: 1000px;
+  min-height: 700px;
+  background-color: rgb(238, 236, 236);
+  display: grid;
+  grid-template-rows: 50px auto 80px;
+  grid-template-columns: 2fr 6fr 2fr;
+  column-gap: 0.5vw;
+}
+
+#title{
+  background-color: #CC0000;
+  grid-column: 1/span 3;
+  grid-row: 1/span 1;
+  font-size: 24px;
+  color: white;
+  line-height: 50px;
+  font-weight: 200;
+  padding-left: 1vw;
+}
+
+/*including the middle three vis parts*/
+#content{
+  grid-column: 1/span 3;
+  grid-row: 2/span 1;
+  margin: 0.5vh 0.5vw;
+  display: grid;
+  grid-template-columns: 4fr 5fr 1.5fr;
+  grid-template-rows: 1fr 1fr 1fr 1fr;
+  column-gap: 0.5vw;
+  row-gap: 0.5vh;
+}
+
+/*three parts in the bottom*/
+#bottom-info{
+  background-color: white;
+  grid-column: 1/span 3;
+  grid-row: 3/span 1;
+  margin: 0 0.5vw 0.5vh 0.5vw;
+  display: grid;
+  grid-row: auto;
+  grid-template-columns: 2fr 6fr 2fr;
+  column-gap: 0.5vw;
+}
+
+/*3 parts in the bottom info div*/
+#logo{
+  position: relative;
+  padding-left: 1vw;
+}
+#logo img{
+  display: block;
+  width: 60%;
+  height: auto;
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+}
+#description{
+  font-size: 20px;
+  line-height: 80px;
+  font-weight: 300;
+  text-align: center;
+}
+#download{
+  padding-top: 1vh;
+  display: grid;
+  grid-row: 2fr 1fr;
+  grid-column: 100%;
+  text-align: center;
+  font-size: 15px;
+  font-weight: 300;
+  text-align: center;
+}
+
+/* parts in the middle view*/
+#CovidCaseG{
+  background-color: white;
+  grid-column: 1/span 1;
+  grid-row: 1/span 1;
+}
+#Home{
+  background-color: white;
+  grid-column: 1/span 1;
+  grid-row: 2/span 1;
+}
+#Work{
+  background-color: white;
+  grid-column: 1/span 1;
+  grid-row: 3/span 1;
+}
+#Others{
+  background-color: white;
+  grid-column: 1/span 1;
+  grid-row: 4/span 1;
+}
+
+#middle-map{
+  background-color: white;
+  grid-column: 2/span 1;
+  grid-row: 1/span 4;
+  display: grid;
+  grid-template-rows: 5vh auto;
+  grid-template-columns: auto;
+}
+
+#MapAttribute{
+  background-color: white;
+  grid-column: 3/span 1;
+  grid-row: 1/span 4;
+}
+
+/*2 parts in the middle map*/
+#mapNav{
+  grid-row: 1/span 1;
+  grid-column: 1/span 1;
+}
+
+#Map{
+  grid-row: 2/span 1;
+  grid-column: 1/span 1;
+}

@@ -12,6 +12,5 @@ Promise.all([d3.csv('./data/SD_eachCBG.csv'), d3.csv('./data/SD_graph.csv'),d3.c
         //let content = new Content(wordData, wordNoForceData);
         let content = new Content(sd_eachCBG, sd_graph, slc_Covid, slc_Json);
         //table.drawTable();
-        
-
     });
+ 

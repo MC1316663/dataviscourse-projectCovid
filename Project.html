@@ -6,34 +6,46 @@
     <title>CS 5630 Project </title>
     <script src="https://d3js.org/d3.v7.min.js"></script>
     
-    <link rel="stylesheet" href="styles.css" />
+    <link rel="stylesheet" href="css/layout.css" />
+    <link rel="stylesheet" href="css/style.css" />
     <link href="https://fonts.googleapis.com/css?family=Work+Sans:400,700&display=swap" rel="stylesheet">
+    <script src="https://kit.fontawesome.com/89d02c748f.js" crossorigin="anonymous"></script>
     <!-- 
        Bootstrap styling if you want to use it: 
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css"
         integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">-->
 </head>
 
-<body style = "background-color: rgb(238, 236, 236);">
-    <div id = "Introduction">Travel Behavior Pattern in SLC under COVID-19 pandemic</div>
-    <div id = "left-graph">
-        <div id = "CovidCaseG"></div>
-        <div id = "Home"></div>
-        <div id = "Work"></div>
-        <div id = "Others"></div>
-    </div>
-    <div id = "middle-map">
-        <div id = "Contents"></div>
-        <div id = "Map"></div>
-    </div>
-    <div id = "MapAttribute"></div>
+<body>
+    <div id="container">
+        <div id = "title">Travel Behavior Pattern in SLC under COVID-19 Pandemic</div>
+        <div id="content">
+            <div id = "CovidCaseG"></div>
+            <div id = "Home"></div>
+            <div id = "Work"></div>
+            <div id = "Others"></div>
+            <div id = "middle-map">
+                <div id = "mapNav"></div>
+                <div id = "Map"></div>
+            </div>
+            <div id = "MapAttribute">
 
-    <div id = "bottom-info">
-        <div id = "Link"></div>
-        <div id = "Description"></div>
-        <div id = "Download"></div>
+            </div>
+        </div>
+        <div id="bottom-info">
+            <div id = "logo">
+                <img src="figs/Ulog.jpg">
+            </div>
+            <div id = "description">
+                This is the description.
+            </div>
+            <div id = "download">
+                <span style="font-size: 20px;">DownLoad Data</span>
+                <span><i class="fa-solid fa-map-location-dot fa-xl"></i> <a href="">Map</a> &nbsp;
+                <i class="fa-solid fa-file-csv fa-xl"></i> <a href="">Bahavior</a></span>
+            </div>
+        </div>
     </div>
-    <div></div>
 <script src="js/content.js"></script>
 <script src="js/script.js"></script>
 
