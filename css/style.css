@@ -1,3 +1,18 @@
 .covid-case rect{
-    fill:rgb(53, 124, 139);
-  }
+  fill:rgb(27, 116, 133);
+}
+
+.home-g rect{
+  fill:rgb(130, 187, 184);
+}
+
+.outdoor-g rect{
+  fill:rgb(112, 153, 204);
+}
+
+.work-g rect{
+  fill:rgb(72, 54, 137);
+}
+
+
+
