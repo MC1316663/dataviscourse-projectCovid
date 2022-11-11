@@ -93,27 +93,27 @@ map(){
   const that = this;
   let map;
 
-      function initMap() {
-        map = new google.maps.Map(d3.select("#Map").node(), {
-          center: { lat: 40.69, lng: -111.906 },
-          zoom: 10,
-        });
-        map.data.addGeoJson(
-          //'./data/CBG_SaltLakeCounty.geojson' //this works but from path.
-           that.slc_Json
-        );
+  function initMap() {
+    map = new google.maps.Map(d3.select("#Map").node(), {
+      center: { lat: 40.69, lng: -111.906 },
+      zoom: 10,
+    });
+    map.data.addGeoJson(
+      //'./data/CBG_SaltLakeCounty.geojson' //this works but from path.
+        that.slc_Json
+    );
 
-        // FOr choropleth Map: 
-        //https://developers.google.com/maps/documentation/javascript/dds-boundaries/choropleth-map
-        //Think that works?
+    // FOr choropleth Map: 
+    //https://developers.google.com/maps/documentation/javascript/dds-boundaries/choropleth-map
+    //Think that works?
 
-        map.data.setStyle({
-          fillColor: "green",
-          fillOpacity: 0.2,
-          strokeWeight: 0.2
-        });
+    map.data.setStyle({
+      fillColor: "green",
+      fillOpacity: 0.2,
+      strokeWeight: 0.2
+    });
 
-      }
+  }
 
       initMap(); // Generate Map
 
