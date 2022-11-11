@@ -17,6 +17,7 @@ class Content {
     this.homeGraph();
     this.outdoorGraph();
     this.workDeviceGraph();
+    this.map();
 
     console.log("sd_graph: ", sd_graph);
   }
