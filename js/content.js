@@ -108,7 +108,7 @@ class Content {
       .attr('class', 'home-g');
 
     const formatTime = d3.timeFormat('%m, %d, %Y')
-    console.log(this.sd_graph.map(d => d.date_range_start))
+    //console.log(this.sd_graph.map(d => d.date_range_start))
 
     //set up bar chart scales
     const xScale = d3.scaleBand()
@@ -279,7 +279,7 @@ class Content {
 
     const that = this;
     let map;
-  
+    console.log(that.slc_Json)
     function initMap() {
       map = new google.maps.Map(d3.select("#Map").node(), {
         center: { lat: 40.69, lng: -111.906 },
@@ -290,16 +290,48 @@ class Content {
           that.slc_Json
       );
   
-      // FOr choropleth Map: 
-      //https://developers.google.com/maps/documentation/javascript/dds-boundaries/choropleth-map
-      //Think that works?
-  
-      map.data.setStyle({
-        fillColor: "green",
-        fillOpacity: 0.2,
-        strokeWeight: 0.2
+      //Chropleth map
+      // map.data.setStyle({
+      //   fillColor: "green",
+      //   fillOpacity: 0.2,
+      //   strokeWeight: 0.2
+      // });
+
+      //Example -----> min and max for classification of choroplethmap!
+      // console.log("asd",that.slc_Json.features)
+      const maxV = d3.max(that.slc_Json.features, function(d){
+        //console.log(d.properties.TRACTCE20)
+        return parseInt(d.properties.FID);
+      })
+      const minV = d3.min(that.slc_Json.features, function(d){
+        return parseInt(d.properties.FID);
+      })
+      
+      map.data.setStyle(function(d){    //Style for Choropleth map
+        const value = d.j.FID        
+        if(value >= minV && value < (minV+maxV)/3){
+          var color =  "green"
+        }
+        else if(value >= (minV+maxV)/3 && value < (minV+maxV)/2){
+          var color = "grey"
+        }
+        else if(value >= (minV+maxV)/2 && value < (minV+maxV)/1.5){
+          var color = "blue"
+        }
+        else{
+          var color = "red"
+        }
+        return{
+          fillColor: color,
+          fillOpacity: 0.2,
+          strokeWeight: 0.2
+        }
       });
-  
+      
+      // On click function:
+      //https://developers.google.com/maps/documentation/javascript/datalayer
+      
+
     }
 
       initMap(); // Generate Map
