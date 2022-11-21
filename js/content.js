@@ -4,21 +4,24 @@ class Content {
    * Creates a Table Object
    */
   constructor(sd_eachCBG, sd_graph, slc_Covid, slc_Json) {
-
       // Data Load
-        this.sd_eachCBG = sd_eachCBG;
-        this.sd_graph = sd_graph;
-        this.slc_Covid = slc_Covid;
-        this.slc_Json = slc_Json;
+      this.sd_eachCBG = sd_eachCBG;
+      this.sd_graph = sd_graph;
+      this.slc_Covid = slc_Covid;
+      this.slc_Json = slc_Json;
 
     this.MARGIN = {left: 33, bottom: 20, top: 10, right: 5};
-
+  
+    // vis charts and map
     this.covidCaseGraph();
     this.homeGraph();
     this.outdoorGraph();
     this.workDeviceGraph();
     this.map();
 
+    // add listners on buttons (work, home, other behaviours) upper map
+
+    this.changeType();
     console.log("sd_graph: ", sd_graph);
   }
   /**
@@ -30,9 +33,10 @@ class Content {
     //d3 setting up
     let covidSVG = d3.select('#CovidCaseG')
       .append('svg')
+      .attr('viewBox', `0 0 ${CHART_WIDTH} ${CHART_HEIGHT}`)
       .attr('id', 'covidCase-svg')
-      .attr("width", CHART_WIDTH)
-      .attr("height", CHART_HEIGHT);
+      .attr("width", '100%')
+      .attr("height", '100%');
     
     let xAxisG = covidSVG.append('g')
       .attr('id', 'covidCase-x-axis');
@@ -47,7 +51,7 @@ class Content {
     //set up bar chart scales
     const xScale = d3.scaleBand()
       .domain(this.slc_Covid.map(d => d.date))
-      .range([this.MARGIN.left, CHART_WIDTH]);
+      .range([0, CHART_WIDTH-this.MARGIN.left-this.MARGIN.right]);
 
     const cases = this.slc_Covid.map(d => d.InfC).map(d => parseInt(d, 10));
     const yScale = d3.scaleLinear()
@@ -57,7 +61,7 @@ class Content {
 
     //set up bar chart axises
     const tickPts = Math.round(this.slc_Covid.map(d => d.date).length/4);
-    xAxisG.attr('transform', `translate(0,${CHART_HEIGHT - this.MARGIN.bottom})`)
+    xAxisG.attr('transform', `translate(${this.MARGIN.left},${CHART_HEIGHT - this.MARGIN.bottom})`)
       .call(d3.axisBottom(xScale).tickValues(this.slc_Covid.map((d, i) => {
         if(i % tickPts == 0){
           return d.date;
@@ -72,13 +76,14 @@ class Content {
       .remove();
 
     //draw bar chart
-    covidCaseG.selectAll('rect')
+    covidCaseG.attr('transform', `translate(${this.MARGIN.left}, ${this.MARGIN.top})`)
+      .selectAll('rect')
       .data(this.slc_Covid, d => d.date)
       .join('rect')
       .attr('width', xScale.bandwidth())
       .attr('height', d => yScale(0) - yScale(d.InfC))
       .attr('x', d => xScale(d.date))
-      .attr('y', d => yScale(d.InfC) + this.MARGIN.top)
+      .attr('y', d => yScale(d.InfC))
       .attr('opacity', 1)
       .attr('classed', 'covid-case');
   }
@@ -93,9 +98,10 @@ class Content {
     //d3 setting up
     let homeSVG = d3.select('#Home')
       .append('svg')
+      .attr('viewBox', `0 0 ${CHART_WIDTH} ${CHART_HEIGHT}`)
       .attr('id', 'home-svg')
-      .attr("width", CHART_WIDTH)
-      .attr("height", CHART_HEIGHT);
+      .attr("width", '100%')
+      .attr("height", '100%');
     
     let xAxisG = homeSVG.append('g')
       .attr('id', 'home-x-axis');
@@ -113,7 +119,7 @@ class Content {
     //set up bar chart scales
     const xScale = d3.scaleBand()
       .domain(this.sd_graph.map(d => d.date_range_start))
-      .range([this.MARGIN.left, CHART_WIDTH]);
+      .range([0, CHART_WIDTH-this.MARGIN.left-this.MARGIN.right]);
 
     const counts = this.sd_graph.map(d => d.median_home_dwell_time).map(d => parseInt(d, 10));
     const yScale = d3.scaleLinear()
@@ -123,7 +129,7 @@ class Content {
 
     //set up bar chart axises
     const tickPts = Math.round(this.sd_graph.map(d => d.date_range_start).length/4);
-    xAxisG.attr('transform', `translate(0,${CHART_HEIGHT - this.MARGIN.bottom})`)
+    xAxisG.attr('transform', `translate(${this.MARGIN.left}, ${CHART_HEIGHT - this.MARGIN.bottom})`)
       .call(d3.axisBottom(xScale).tickValues(this.sd_graph.map((d, i) => {
         if(i % tickPts == 0){
           return d.date_range_start;
@@ -138,13 +144,14 @@ class Content {
       .remove();
 
     //draw bar chart
-    homeG.selectAll('rect')
+    homeG.attr('transform', `translate(${this.MARGIN.left}, ${this.MARGIN.top})`)
+      .selectAll('rect')
       .data(this.sd_graph, d => d.date_range_start)
       .join('rect')
       .attr('width', xScale.bandwidth())
       .attr('height', d => yScale(0) - yScale(d.median_home_dwell_time))
       .attr('x', d => xScale(d.date_range_start))
-      .attr('y', d => yScale(d.median_home_dwell_time) + this.MARGIN.top)
+      .attr('y', d => yScale(d.median_home_dwell_time))
       .attr('opacity', 1)
       .attr('classed', 'home-g');
   }
@@ -159,9 +166,10 @@ class Content {
     //d3 setting up
     let outdoorSVG = d3.select('#Others')
       .append('svg')
+      .attr('viewBox', `0 0 ${CHART_WIDTH} ${CHART_HEIGHT}`)
       .attr('id', 'outdoor-svg')
-      .attr("width", CHART_WIDTH)
-      .attr("height", CHART_HEIGHT);
+      .attr("width", '100%')
+      .attr("height", '100%');
     
     let xAxisG = outdoorSVG.append('g')
       .attr('id', 'outdoor-x-axis');
@@ -176,7 +184,7 @@ class Content {
     //set up bar chart scales
     const xScale = d3.scaleBand()
       .domain(this.sd_graph.map(d => d.date_range_start))
-      .range([this.MARGIN.left, CHART_WIDTH]);
+      .range([0, CHART_WIDTH-this.MARGIN.left-this.MARGIN.right]);
 
     const counts = this.sd_graph.map(d => d.median_non_home_dwell_time).map(d => parseInt(d, 10));
     const yScale = d3.scaleLinear()
@@ -186,7 +194,7 @@ class Content {
 
     //set up bar chart axises
     const tickPts = Math.round(this.sd_graph.map(d => d.date_range_start).length/4);
-    xAxisG.attr('transform', `translate(0,${CHART_HEIGHT - this.MARGIN.bottom})`)
+    xAxisG.attr('transform', `translate(${this.MARGIN.left},${CHART_HEIGHT - this.MARGIN.bottom})`)
       .call(d3.axisBottom(xScale).tickValues(this.sd_graph.map((d, i) => {
         if(i % tickPts == 0){
           return d.date_range_start;
@@ -201,13 +209,14 @@ class Content {
       .remove();
 
     //draw bar chart
-    outdoorG.selectAll('rect')
+    outdoorG.attr('transform', `translate(${this.MARGIN.left}, ${this.MARGIN.top})`)
+      .selectAll('rect')
       .data(this.sd_graph, d => d.date_range_start)
       .join('rect')
       .attr('width', xScale.bandwidth())
       .attr('height', d => yScale(0) - yScale(d.median_non_home_dwell_time))
       .attr('x', d => xScale(d.date_range_start))
-      .attr('y', d => yScale(d.median_non_home_dwell_time) + this.MARGIN.top)
+      .attr('y', d => yScale(d.median_non_home_dwell_time))
       .attr('opacity', 1)
       .attr('classed', 'outdoor-g');
   }
@@ -222,9 +231,10 @@ class Content {
     //d3 setting up
     let workSVG = d3.select('#Work')
       .append('svg')
+      .attr('viewBox', `0 0 ${CHART_WIDTH} ${CHART_HEIGHT}`)
       .attr('id', 'work-svg')
-      .attr("width", CHART_WIDTH)
-      .attr("height", CHART_HEIGHT);
+      .attr("width", '100%')
+      .attr("height", '100%');
     
     let xAxisG = workSVG.append('g')
       .attr('id', 'work-x-axis');
@@ -239,7 +249,7 @@ class Content {
     //set up bar chart scales
     const xScale = d3.scaleBand()
       .domain(this.sd_graph.map(d => d.date_range_start))
-      .range([this.MARGIN.left, CHART_WIDTH]);
+      .range([0, CHART_WIDTH-this.MARGIN.left-this.MARGIN.right]);
 
     const counts = this.sd_graph.map(d => d.sum_work_behavior_device).map(d => parseInt(d, 10));
     const yScale = d3.scaleLinear()
@@ -249,7 +259,7 @@ class Content {
 
     //set up bar chart axises
     const tickPts = Math.round(this.sd_graph.map(d => d.date_range_start).length/4);
-    xAxisG.attr('transform', `translate(0,${CHART_HEIGHT - this.MARGIN.bottom})`)
+    xAxisG.attr('transform', `translate(${this.MARGIN.left},${CHART_HEIGHT - this.MARGIN.bottom})`)
       .call(d3.axisBottom(xScale).tickValues(this.sd_graph.map((d, i) => {
         if(i % tickPts == 0){
           return d.date_range_start;
@@ -264,22 +274,21 @@ class Content {
       .remove();
 
     //draw bar chart
-    workG.selectAll('rect')
+    workG.attr('transform', `translate(${this.MARGIN.left}, ${this.MARGIN.top})`)
+      .selectAll('rect')
       .data(this.sd_graph, d => d.date_range_start)
       .join('rect')
       .attr('width', xScale.bandwidth())
       .attr('height', d => yScale(0) - yScale(d.sum_work_behavior_device))
       .attr('x', d => xScale(d.date_range_start))
-      .attr('y', d => yScale(d.sum_work_behavior_device) + this.MARGIN.top)
+      .attr('y', d => yScale(d.sum_work_behavior_device))
       .attr('opacity', 1)
       .attr('classed', 'work-g');
   }
 
   map(){
-
     const that = this;
     let map;
-    console.log(that.slc_Json)
     function initMap() {
       map = new google.maps.Map(d3.select("#Map").node(), {
         center: { lat: 40.69, lng: -111.906 },
@@ -298,7 +307,7 @@ class Content {
       // });
 
       //Example -----> min and max for classification of choroplethmap!
-      // console.log("asd",that.slc_Json.features)
+      console.log("asd",that.slc_Json.features)
       const maxV = d3.max(that.slc_Json.features, function(d){
         //console.log(d.properties.TRACTCE20)
         return parseInt(d.properties.FID);
@@ -330,11 +339,23 @@ class Content {
       
       // On click function:
       //https://developers.google.com/maps/documentation/javascript/datalayer
-      
-
     }
 
-      initMap(); // Generate Map
+    initMap(); // Generate Map
 
-}
+  }
+
+  /**
+   * change the type of activity
+   * add listners on buttons (work, home, other behaviours) upper map
+   */
+  changeType(){
+    let that = this;
+    d3.select('#mapNav').selectAll('button')
+      .on('click', function(){
+        let attr = d3.select(this).attr('activity');
+        
+      })
+  }
+
 }
