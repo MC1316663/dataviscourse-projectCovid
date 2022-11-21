@@ -371,26 +371,10 @@ class Content {
           strokeWeight: 0.2
         }
       });
-      
-      // On click function:
-      //https://developers.google.com/maps/documentation/javascript/datalayer
+  
     }
 
-    initMap(); // Generate Map
+      initMap(); // Generate Map
 
-  }
-
-  /**
-   * change the type of activity
-   * add listners on buttons (work, home, other behaviours) upper map
-   */
-  changeType(){
-    let that = this;
-    d3.select('#mapNav').selectAll('button')
-      .on('click', function(){
-        let attr = d3.select(this).attr('activity');
-        
-      })
-  }
-
+}
 }
