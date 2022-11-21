@@ -2,16 +2,21 @@
   fill:rgb(27, 116, 133);
 }
 
-.home-g rect{
+.home-g{
   fill:rgb(130, 187, 184);
 }
 
-.outdoor-g rect{
+.outdoor-g{
   fill:rgb(112, 153, 204);
 }
 
-.work-g rect{
+.work-g{
   fill:rgb(72, 54, 137);
+}
+
+.brushed{
+  color: #CC0000;
+  fill: #CC0000;
 }
 
 
