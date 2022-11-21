@@ -294,10 +294,9 @@ class Content {
   brush(){
     this.covidSVG.append('g')
     .attr('id', 'brush')
-    .call(d3.brushX().extent([[this.MARGIN.left, 15], [this.CHART_WIDTH, this.CHART_HEIGHT - this.MARGIN.bottom]]).on("start brush", brushed));
+    .call(d3.brushX().extent([[this.MARGIN.left, 5], [this.CHART_WIDTH, this.CHART_HEIGHT - this.MARGIN.bottom - this.MARGIN.top]]).on("start brush", brushed));
 
     let that = this;
-    let brushedDates = [];
     let brushedData = [];
     function brushed({selection}){
 
@@ -316,7 +315,8 @@ class Content {
         brushedData = that.sd_graph.filter(d => that.xScale(d.date_range_start) > x0 && that.xScale(d.date_range_start) < x1);
 
         //store brushed dates in array
-        brushedDates = brushedData.map(d => d.date_range_start);
+        let brushedDates = brushedData.map(d => d.date_range_start);
+
       }
     }
   }
