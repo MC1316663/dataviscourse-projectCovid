@@ -295,7 +295,7 @@ class Content {
     
     this.covidSVG.append('g')
     .attr('id', 'brush')
-    .call(d3.brushX().extent([[this.MARGIN.left, 5], [this.CHART_WIDTH, this.CHART_HEIGHT - this.MARGIN.bottom - this.MARGIN.top]]).on("start brush", brushed));
+    .call(d3.brushX().extent([[this.MARGIN.left, 15], [this.CHART_WIDTH, this.CHART_HEIGHT - this.MARGIN.bottom]]).on("start brush", brushed));
 
     let that = this;
     let brushedData = [];
