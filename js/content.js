@@ -83,10 +83,10 @@ class Content {
 
     // add listners on buttons (work, home, other behaviours) upper map
 
-    this.changeType();
+    ///this.changeType();
 
-    console.log("sd_graph: ", this.sd_graph);
-    console.log("covid_case: ", this.slc_Covid);
+    //console.log("sd_graph: ", this.sd_graph);
+    //console.log("covid_case: ", this.slc_Covid);
   }
   /**
      * Bar chart for covid case graph
@@ -292,6 +292,7 @@ class Content {
    * Brush covid cases graph to highlight data of the same time period in home, outdoor, and work graphs
    */
   brush(){
+    
     this.covidSVG.append('g')
     .attr('id', 'brush')
     .call(d3.brushX().extent([[this.MARGIN.left, 5], [this.CHART_WIDTH, this.CHART_HEIGHT - this.MARGIN.bottom - this.MARGIN.top]]).on("start brush", brushed));
@@ -304,7 +305,8 @@ class Content {
         const [x0, x1] = selection;
 
         that.homeG.selectAll('rect')
-        .classed('brushed',  function(d){return that.xScale(d.date_range_start) > x0 && that.xScale(d.date_range_start) < x1});
+        .classed('brushed',  function(d){
+          return that.xScale(d.date_range_start) > x0 && that.xScale(d.date_range_start) < x1});
 
         that.outdoorG.selectAll('rect')
         .classed('brushed',  function(d){return that.xScale(d.date_range_start) > x0 && that.xScale(d.date_range_start) < x1});
@@ -316,6 +318,8 @@ class Content {
 
         //store brushed dates in array
         let brushedDates = brushedData.map(d => d.date_range_start);
+        //console.log(brushedDates)
+        that.filterDataByBrushing(brushedDates)
 
       }
     }
@@ -342,9 +346,9 @@ class Content {
       // });
 
       //Example -----> min and max for classification of choroplethmap!
-      console.log("asd",that.slc_Json.features)
+      //console.log("asd",that.slc_Json.features)
       const maxV = d3.max(that.slc_Json.features, function(d){
-        //console.log(d.properties.TRACTCE20)
+        //console.log(d.properties)
         return parseInt(d.properties.FID);
       })
       const minV = d3.min(that.slc_Json.features, function(d){
@@ -376,5 +380,28 @@ class Content {
 
       initMap(); // Generate Map
 
+      console.log("sd_eachCBG", that.sd_eachCBG)
+      console.log("sd_graph", that.sd_graph)
+      console.log("slc_Covid", that.slc_Covid)
 }
+
+filterDataByBrushing(brushedDates){
+  const that = this
+  //console.log(brushedDates)
+
+  //Filter data 
+  const selected_slc_Covid = that.slc_Covid.filter(d => brushedDates.includes(d.date))
+  const selected_sd_graph = that.sd_graph.filter(d => brushedDates.includes(d.date_range_start))
+  const selected_sd_eachCBG = that.sd_eachCBG.filter(d => brushedDates.includes(d.Date))
+
+
+  //Map
+
+
+  //Table
+
+  
+}
+
+
 }
