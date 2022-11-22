@@ -395,7 +395,12 @@ filterDataByBrushing(brushedDates){
   const selected_sd_eachCBG = that.sd_eachCBG.filter(d => brushedDates.includes(d.Date))
 
 
-  //Map
+  //Color Map bar - use selected_df_eachCBG
+  console.log(selected_sd_eachCBG)
+
+  //Map - Need to aggregate data by its date. (average? sum?)
+  //https://www.tutorialspoint.com/aggregate-records-in-javascript
+  
 
 
   //Table
