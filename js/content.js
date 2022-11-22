@@ -71,7 +71,7 @@ class Content {
     //xScale for home, outdoor, and work graphs
     this.xScale = d3.scaleBand()
       .domain(this.sd_graph.map(d => d.date_range_start))
-      .range([this.MARGIN.left, this.CHART_WIDTH]);
+      .range([this.MARGIN.left, this.CHART_WIDTH-this.MARGIN.right]);
 
     //draw graphs
     this.covidCaseGraph();
@@ -82,8 +82,7 @@ class Content {
     this.map();
 
     // add listners on buttons (work, home, other behaviours) upper map
-
-    ///this.changeType();
+    this.changeType();
 
     //console.log("sd_graph: ", this.sd_graph);
     //console.log("covid_case: ", this.slc_Covid);
@@ -105,7 +104,7 @@ class Content {
     //set up bar chart scales
     const xScale = d3.scaleBand()
       .domain(this.slc_Covid.map(d => d.date))
-      .range([this.MARGIN.left, this.CHART_WIDTH]);
+      .range([this.MARGIN.left, this.CHART_WIDTH-this.MARGIN.right]);
 
     const cases = this.slc_Covid.map(d => d.InfC).map(d => parseInt(d, 10));
     const yScale = d3.scaleLinear()
@@ -130,7 +129,8 @@ class Content {
       .remove();
 
     //draw bar chart
-    this.covidCaseG.selectAll('rect')
+    this.covidCaseG.attr('transform', `translate(0, ${this.MARGIN.top})`)
+      .selectAll('rect')
       .data(this.slc_Covid, d => d.date)
       .join('rect')
       .attr('width', xScale.bandwidth())
@@ -403,5 +403,10 @@ filterDataByBrushing(brushedDates){
   
 }
 
-
+changeType(){
+  d3.select('#mapNav').selectAll('button')
+    .on('click', function(){
+      console.log(d3.select(this).text());
+    })
+}
 }
