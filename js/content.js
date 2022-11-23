@@ -396,20 +396,13 @@ filterDataByBrushing(brushedDates){
   //Filter data 
   const selected_slc_Covid = that.slc_Covid.filter(d => brushedDates.includes(d.date))
   const selected_sd_graph = that.sd_graph.filter(d => brushedDates.includes(d.date_range_start))
-<<<<<<< HEAD
+
   //const selected_sd_eachCBG = that.sd_eachCBG.filter(d => brushedDates.includes(d.Date))
   //console.log(selected_sd_eachCBG)
-=======
-  const selected_sd_eachCBG = that.sd_eachCBG.filter(d => brushedDates.includes(d.Date))
 
+  //const selected_sd_eachCBG = that.sd_eachCBG.filter(d => brushedDates.includes(d.Date))
 
-  //Color Map bar - use selected_df_eachCBG
-  console.log(selected_sd_eachCBG)
-
-  //Map - Need to aggregate data by its date. (average? sum?)
-  //https://www.tutorialspoint.com/aggregate-records-in-javascript
   
->>>>>>> 4dafd1b7b9634741f09d5f825a1053bab4067e9f
 
   //Color Map bar - use selected_df_eachCBG
   
