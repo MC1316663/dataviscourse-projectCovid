@@ -292,10 +292,11 @@ class Content {
    * Brush covid cases graph to highlight data of the same time period in home, outdoor, and work graphs
    */
   brush(){
-    
+    this.brushedDates;
     this.covidSVG.append('g')
     .attr('id', 'brush')
-    .call(d3.brushX().extent([[this.MARGIN.left, 15], [this.CHART_WIDTH, this.CHART_HEIGHT - this.MARGIN.bottom]]).on("start brush", brushed));
+    .call(d3.brushX().extent([[this.MARGIN.left, 15], [this.CHART_WIDTH, this.CHART_HEIGHT - this.MARGIN.bottom]]).on("start brush", brushed)
+    .on("end", updateChoroplethMap));
 
     let that = this;
     let brushedData = [];
@@ -317,11 +318,14 @@ class Content {
         brushedData = that.sd_graph.filter(d => that.xScale(d.date_range_start) > x0 && that.xScale(d.date_range_start) < x1);
 
         //store brushed dates in array
-        let brushedDates = brushedData.map(d => d.date_range_start);
+        that.brushedDates = brushedData.map(d => d.date_range_start);
         //console.log(brushedDates)
-        that.filterDataByBrushing(brushedDates)
+        that.filterDataByBrushing(that.brushedDates)
 
       }
+    }
+    function updateChoroplethMap(){
+      that.filterDataAfterBrushing(that.brushedDates)
     }
   }
 
@@ -392,15 +396,54 @@ filterDataByBrushing(brushedDates){
   //Filter data 
   const selected_slc_Covid = that.slc_Covid.filter(d => brushedDates.includes(d.date))
   const selected_sd_graph = that.sd_graph.filter(d => brushedDates.includes(d.date_range_start))
-  const selected_sd_eachCBG = that.sd_eachCBG.filter(d => brushedDates.includes(d.Date))
+  //const selected_sd_eachCBG = that.sd_eachCBG.filter(d => brushedDates.includes(d.Date))
+  //console.log(selected_sd_eachCBG)
 
+  //Color Map bar - use selected_df_eachCBG
+  
 
-  //Map
-
-
+  
   //Table
 
   
+}
+
+filterDataAfterBrushing(brushedDates){
+  const that = this;
+  const selected_sd_eachCBG = that.sd_eachCBG.filter(d => brushedDates.includes(d.Date));
+  // Map - Need to aggregate data by its date. (average? sum?)
+  
+  const aggregate = d => {
+    if(selected_sd_eachCBG.length > 0){ //If brushed
+      return d.reduce((acc, val) => {
+        const index = acc.findIndex(obj => obj.origin_census_block_group === val.origin_census_block_group);
+        if(index !== -1){ //if there are some duplicated one
+          acc[index].median_home_dwell_time += val.median_home_dwell_time; 
+          acc[index].delivery_behavior_devices += val.delivery_behavior_devices;
+          acc[index].distance_traveled_from_home += val.distance_traveled_from_home
+          acc[index].full_time_work_behavior_devices += val.full_time_work_behavior_devices
+          acc[index].median_non_home_dwell_time += val.median_non_home_dwell_time
+          acc[index].part_time_work_behavior_devices += val.part_time_work_behavior_devices
+          acc[index].work_behavior_device += val.work_behavior_device
+        }else{ //there is no duplicated one
+          acc.push({
+            origin_census_block_group: val.origin_census_block_group,
+            median_home_dwell_time: (val.median_home_dwell_time / brushedDates.length).toFixed(2), //mean
+            delivery_behavior_devices: val.delivery_behavior_devices, //sum
+            distance_traveled_from_home: (val.distance_traveled_from_home/ brushedDates.length).toFixed(2), //mean
+            full_time_work_behavior_devices: (val.full_time_work_behavior_devices/ brushedDates.length).toFixed(2), //mean,
+            median_non_home_dwell_time: (val.median_non_home_dwell_time / brushedDates.length).toFixed(2), //mean,
+            part_time_work_behavior_devices: (val.part_time_work_behavior_devices/ brushedDates.length).toFixed(2), //mean,
+            work_behavior_device: (val.work_behavior_device/ brushedDates.length).toFixed(2), //mean
+          });
+        };
+        return acc;
+      }, []);
+
+    }
+  }
+  const aggregated_sd_eachCBG = aggregate(selected_sd_eachCBG)
+  console.log(aggregated_sd_eachCBG)
 }
 
 changeType(){
@@ -409,4 +452,5 @@ changeType(){
       console.log(d3.select(this).text());
     })
 }
+
 }
