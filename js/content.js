@@ -11,6 +11,14 @@ class Content {
     this.slc_Covid = slc_Covid;
     this.slc_Json = slc_Json;
 
+    // map object
+    this.map = '';
+    this.type='median_home_dwell_time'; // current focused type
+    this.typeRange = {'median_home_dwell_time': [0, 1500], 'median_non_home_dwell_time': [0, 1400], 'full_time_work_behavior_devices': [0, 1000]};
+    this.colorMap = d3.scaleLinear().domain(this.typeRange['median_home_dwell_time']).range(['#F7FBFF', '#0A306B']);
+    this.brushedData = '';
+    // console.log('range', d3.min(this.sd_eachCBG, d=>parseInt(d['full_time_work_behavior_devices'])), d3.max(this.sd_eachCBG, d=>parseInt(d['median_home_dwell_time'])))
+
     this.MARGIN = {left: 33, bottom: 20, top: 10, right: 5};
 
     //convert time format
@@ -73,16 +81,17 @@ class Content {
       .domain(this.sd_graph.map(d => d.date_range_start))
       .range([this.MARGIN.left, this.CHART_WIDTH-this.MARGIN.right]);
 
+    // add listners on buttons (work, home, other behaviours) upper map
+    this.changeType();
+
     //draw graphs
     this.covidCaseGraph();
     this.homeGraph();
     this.outdoorGraph();
     this.workDeviceGraph();
     this.brush();
-    this.map();
+    this.initMap();
 
-    // add listners on buttons (work, home, other behaviours) upper map
-    this.changeType();
 
     //console.log("sd_graph: ", this.sd_graph);
     //console.log("covid_case: ", this.slc_Covid);
@@ -329,65 +338,343 @@ class Content {
     }
   }
 
-  map(){
+  /**
+   * Intialize the map object
+   */
+  initMap(){
     const that = this;
-    let map;
-    function initMap() {
-      map = new google.maps.Map(d3.select("#Map").node(), {
-        center: { lat: 40.69, lng: -111.906 },
-        zoom: 10,
-      });
-      map.data.addGeoJson(
-        //'./data/CBG_SaltLakeCounty.geojson' //this works but from path.
-          that.slc_Json
-      );
-  
-      //Chropleth map
-      // map.data.setStyle({
-      //   fillColor: "green",
-      //   fillOpacity: 0.2,
-      //   strokeWeight: 0.2
-      // });
+    const mapStylesArray = [
+      {
+        "elementType": "geometry",
+        "stylers": [
+          {
+            "color": "#f5f5f5"
+          }
+        ]
+      },
+      {
+        "elementType": "labels.icon",
+        "stylers": [
+          {
+            "visibility": "off"
+          }
+        ]
+      },
+      {
+        "elementType": "labels.text.fill",
+        "stylers": [
+          {
+            "color": "#616161"
+          }
+        ]
+      },
+      {
+        "elementType": "labels.text.stroke",
+        "stylers": [
+          {
+            "color": "#f5f5f5"
+          }
+        ]
+      },
+      {
+        "featureType": "administrative.land_parcel",
+        "stylers": [
+          {
+            "visibility": "off"
+          }
+        ]
+      },
+      {
+        "featureType": "administrative.land_parcel",
+        "elementType": "labels.text.fill",
+        "stylers": [
+          {
+            "color": "#bdbdbd"
+          }
+        ]
+      },
+      {
+        "featureType": "administrative.locality",
+        "elementType": "labels.text",
+        "stylers": [
+          {
+            "saturation": -85
+          },
+          {
+            "lightness": 45
+          },
+          {
+            "weight": 0.5
+          }
+        ]
+      },
+      {
+        "featureType": "administrative.locality",
+        "elementType": "labels.text.fill",
+        "stylers": [
+          {
+            "saturation": -85
+          }
+        ]
+      },
+      {
+        "featureType": "administrative.locality",
+        "elementType": "labels.text.stroke",
+        "stylers": [
+          {
+            "lightness": 80
+          },
+          {
+            "weight": 0.5
+          }
+        ]
+      },
+      {
+        "featureType": "administrative.neighborhood",
+        "stylers": [
+          {
+            "visibility": "off"
+          }
+        ]
+      },
+      {
+        "featureType": "administrative.province",
+        "elementType": "labels.text",
+        "stylers": [
+          {
+            "weight": 0.5
+          }
+        ]
+      },
+      {
+        "featureType": "poi",
+        "elementType": "geometry",
+        "stylers": [
+          {
+            "color": "#eeeeee"
+          }
+        ]
+      },
+      {
+        "featureType": "poi",
+        "elementType": "labels.text",
+        "stylers": [
+          {
+            "visibility": "off"
+          }
+        ]
+      },
+      {
+        "featureType": "poi",
+        "elementType": "labels.text.fill",
+        "stylers": [
+          {
+            "color": "#757575"
+          }
+        ]
+      },
+      {
+        "featureType": "poi.business",
+        "stylers": [
+          {
+            "visibility": "off"
+          }
+        ]
+      },
+      {
+        "featureType": "poi.park",
+        "elementType": "geometry",
+        "stylers": [
+          {
+            "color": "#e5e5e5"
+          }
+        ]
+      },
+      {
+        "featureType": "poi.park",
+        "elementType": "labels.text.fill",
+        "stylers": [
+          {
+            "color": "#9e9e9e"
+          }
+        ]
+      },
+      {
+        "featureType": "road",
+        "elementType": "geometry",
+        "stylers": [
+          {
+            "color": "#ffffff"
+          }
+        ]
+      },
+      {
+        "featureType": "road",
+        "elementType": "labels",
+        "stylers": [
+          {
+            "visibility": "off"
+          }
+        ]
+      },
+      {
+        "featureType": "road",
+        "elementType": "labels.icon",
+        "stylers": [
+          {
+            "visibility": "off"
+          }
+        ]
+      },
+      {
+        "featureType": "road.arterial",
+        "elementType": "labels",
+        "stylers": [
+          {
+            "visibility": "off"
+          }
+        ]
+      },
+      {
+        "featureType": "road.arterial",
+        "elementType": "labels.text.fill",
+        "stylers": [
+          {
+            "color": "#757575"
+          }
+        ]
+      },
+      {
+        "featureType": "road.highway",
+        "elementType": "geometry",
+        "stylers": [
+          {
+            "color": "#dadada"
+          }
+        ]
+      },
+      {
+        "featureType": "road.highway",
+        "elementType": "labels",
+        "stylers": [
+          {
+            "visibility": "off"
+          }
+        ]
+      },
+      {
+        "featureType": "road.highway",
+        "elementType": "labels.text.fill",
+        "stylers": [
+          {
+            "color": "#616161"
+          }
+        ]
+      },
+      {
+        "featureType": "road.local",
+        "stylers": [
+          {
+            "visibility": "off"
+          }
+        ]
+      },
+      {
+        "featureType": "road.local",
+        "elementType": "labels.text.fill",
+        "stylers": [
+          {
+            "color": "#9e9e9e"
+          }
+        ]
+      },
+      {
+        "featureType": "transit",
+        "stylers": [
+          {
+            "visibility": "off"
+          }
+        ]
+      },
+      {
+        "featureType": "transit.line",
+        "elementType": "geometry",
+        "stylers": [
+          {
+            "color": "#e5e5e5"
+          }
+        ]
+      },
+      {
+        "featureType": "transit.station",
+        "elementType": "geometry",
+        "stylers": [
+          {
+            "color": "#eeeeee"
+          }
+        ]
+      },
+      {
+        "featureType": "water",
+        "elementType": "geometry",
+        "stylers": [
+          {
+            "color": "#c9c9c9"
+          }
+        ]
+      },
+      {
+        "featureType": "water",
+        "elementType": "labels.text",
+        "stylers": [
+          {
+            "visibility": "off"
+          }
+        ]
+      },
+      {
+        "featureType": "water",
+        "elementType": "labels.text.fill",
+        "stylers": [
+          {
+            "color": "#9e9e9e"
+          }
+        ]
+      }
+    ];
+    this.map = new google.maps.Map(d3.select("#Map").node(), {
+      center: { lat: 40.69, lng: -111.906 },
+      zoom: 10.2,
+      styles: mapStylesArray
+    });
+    this.map.data.addGeoJson(
+      //'./data/CBG_SaltLakeCounty.geojson' //this works but from path.
+        that.slc_Json
+    );
+    this.filterDataAfterBrushing(this.brushedData);
+  }
 
-      //Example -----> min and max for classification of choroplethmap!
-      //console.log("asd",that.slc_Json.features)
-      const maxV = d3.max(that.slc_Json.features, function(d){
-        //console.log(d.properties)
-        return parseInt(d.properties.FID);
-      })
-      const minV = d3.min(that.slc_Json.features, function(d){
-        return parseInt(d.properties.FID);
-      })
+  /**
+   * add color on each ID block
+   * attrData {'CBGID', 'value'}
+   */
+  styleMap(attrData){
+    let that = this;
+    let color = 'none';
+    this.map.data.setStyle(function(d){    //Style for Choropleth map
+      const CBGID = d.j['GEOID20'];
+      if(attrData.has(CBGID)){
+        color = that.colorMap(attrData.get(CBGID));
+      }
       
-      map.data.setStyle(function(d){    //Style for Choropleth map
-        const value = d.j.FID        
-        if(value >= minV && value < (minV+maxV)/3){
-          var color =  "green"
-        }
-        else if(value >= (minV+maxV)/3 && value < (minV+maxV)/2){
-          var color = "grey"
-        }
-        else if(value >= (minV+maxV)/2 && value < (minV+maxV)/1.5){
-          var color = "blue"
-        }
-        else{
-          var color = "red"
-        }
-        return{
-          fillColor: color,
-          fillOpacity: 0.2,
-          strokeWeight: 0.2
-        }
-      });
-  
-    }
+      return{
+        fillColor: color,
+        fillOpacity: 0.85,
+        strokeWeight: 0.2
+      }
+    });
+  }
 
-      initMap(); // Generate Map
-
-      console.log("sd_eachCBG", that.sd_eachCBG)
-      console.log("sd_graph", that.sd_graph)
-      console.log("slc_Covid", that.slc_Covid)
-}
 
 filterDataByBrushing(brushedDates){
   const that = this
@@ -414,48 +701,75 @@ filterDataByBrushing(brushedDates){
 }
 
 filterDataAfterBrushing(brushedDates){
-  const that = this;
-  const selected_sd_eachCBG = that.sd_eachCBG.filter(d => brushedDates.includes(d.Date));
+  this.brushedData = brushedDates;
+  let grouped_sd_eachCBG = '';
+  if(!brushedDates || brushedDates.length == 0){
+    // when dismiss a brush area, recover the entire day
+    this.brushedData = '';
+    grouped_sd_eachCBG = this.getCBGAttrData(this.sd_eachCBG);
+  }
+  else{
+    const selected_sd_eachCBG = this.sd_eachCBG.filter(d => brushedDates.includes(d.Date));
+    grouped_sd_eachCBG = this.getCBGAttrData(selected_sd_eachCBG);
+  }
+  this.styleMap(grouped_sd_eachCBG);
+
   // Map - Need to aggregate data by its date. (average? sum?)
   
-  const aggregate = d => {
-    if(selected_sd_eachCBG.length > 0){ //If brushed
-      return d.reduce((acc, val) => {
-        const index = acc.findIndex(obj => obj.origin_census_block_group === val.origin_census_block_group);
-        if(index !== -1){ //if there are some duplicated one
-          acc[index].median_home_dwell_time += val.median_home_dwell_time; 
-          acc[index].delivery_behavior_devices += val.delivery_behavior_devices;
-          acc[index].distance_traveled_from_home += val.distance_traveled_from_home
-          acc[index].full_time_work_behavior_devices += val.full_time_work_behavior_devices
-          acc[index].median_non_home_dwell_time += val.median_non_home_dwell_time
-          acc[index].part_time_work_behavior_devices += val.part_time_work_behavior_devices
-          acc[index].work_behavior_device += val.work_behavior_device
-        }else{ //there is no duplicated one
-          acc.push({
-            origin_census_block_group: val.origin_census_block_group,
-            median_home_dwell_time: (val.median_home_dwell_time / brushedDates.length).toFixed(2), //mean
-            delivery_behavior_devices: val.delivery_behavior_devices, //sum
-            distance_traveled_from_home: (val.distance_traveled_from_home/ brushedDates.length).toFixed(2), //mean
-            full_time_work_behavior_devices: (val.full_time_work_behavior_devices/ brushedDates.length).toFixed(2), //mean,
-            median_non_home_dwell_time: (val.median_non_home_dwell_time / brushedDates.length).toFixed(2), //mean,
-            part_time_work_behavior_devices: (val.part_time_work_behavior_devices/ brushedDates.length).toFixed(2), //mean,
-            work_behavior_device: (val.work_behavior_device/ brushedDates.length).toFixed(2), //mean
-          });
-        };
-        return acc;
-      }, []);
+  // const aggregate = d => {
+  //   if(selected_sd_eachCBG.length > 0){ //If brushed
+  //     return d.reduce((acc, val) => {
+  //       const index = acc.findIndex(obj => obj.origin_census_block_group === val.origin_census_block_group);
+  //       if(index !== -1){ //if there are some duplicated one
+  //         acc[index].median_home_dwell_time += val.median_home_dwell_time; 
+  //         acc[index].delivery_behavior_devices += val.delivery_behavior_devices;
+  //         acc[index].distance_traveled_from_home += val.distance_traveled_from_home
+  //         acc[index].full_time_work_behavior_devices += val.full_time_work_behavior_devices
+  //         acc[index].median_non_home_dwell_time += val.median_non_home_dwell_time
+  //         acc[index].part_time_work_behavior_devices += val.part_time_work_behavior_devices
+  //         acc[index].work_behavior_device += val.work_behavior_device
+  //       }else{ //there is no duplicated one
+  //         acc.push({
+  //           origin_census_block_group: val.origin_census_block_group,
+  //           median_home_dwell_time: (val.median_home_dwell_time / brushedDates.length).toFixed(2), //mean
+  //           delivery_behavior_devices: val.delivery_behavior_devices, //sum
+  //           distance_traveled_from_home: (val.distance_traveled_from_home/ brushedDates.length).toFixed(2), //mean
+  //           full_time_work_behavior_devices: (val.full_time_work_behavior_devices/ brushedDates.length).toFixed(2), //mean,
+  //           median_non_home_dwell_time: (val.median_non_home_dwell_time / brushedDates.length).toFixed(2), //mean,
+  //           part_time_work_behavior_devices: (val.part_time_work_behavior_devices/ brushedDates.length).toFixed(2), //mean,
+  //           work_behavior_device: (val.work_behavior_device/ brushedDates.length).toFixed(2), //mean
+  //         });
+  //       };
+  //       return acc;
+  //     }, []);
 
-    }
-  }
-  const aggregated_sd_eachCBG = aggregate(selected_sd_eachCBG)
-  console.log(aggregated_sd_eachCBG)
+  //   }
+  // }
+  // const aggregated_sd_eachCBG = aggregate(selected_sd_eachCBG)
+  // console.log(aggregated_sd_eachCBG)
 }
 
+// get the average of a specific type for each CBG
+getCBGAttrData(selected_sd_eachCBG){
+  // aggregate data according to the CBGID
+  let grouped_sd_eachCBG = d3.group(selected_sd_eachCBG, d => d['origin_census_block_group']);
+  // console.log('grouped_sd_eachCBG', grouped_sd_eachCBG);
+  grouped_sd_eachCBG.forEach(function(value, key){
+    grouped_sd_eachCBG.set(key, d3.mean(value, d=>parseFloat(d['median_home_dwell_time'])));
+  });
+  return grouped_sd_eachCBG;
+} 
+
+
 changeType(){
+  let that = this;
   d3.select('#mapNav').selectAll('button')
     .on('click', function(){
-      console.log(d3.select(this).text());
-    })
+        that.type = d3.select(this).attr('value');
+        that.colorMap.domain(that.typeRange[that.type]);
+        console.log('new colormap', that.colorMap.domain())
+        that.filterDataAfterBrushing(that.brushedData);
+    });
 }
 
 }
