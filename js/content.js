@@ -16,6 +16,8 @@ class Content {
     this.type='median_home_dwell_time'; // current focused type
     this.typeRange = {'median_home_dwell_time': [0, 1500], 'median_non_home_dwell_time': [0, 1400], 'full_time_work_behavior_devices': [0, 1000]};
     this.colorMap = d3.scaleLinear().domain(this.typeRange['median_home_dwell_time']).range(['#F7FBFF', '#0A306B']);
+    this.colorMap2 = d3.scaleLinear().domain(this.typeRange['full_time_work_behavior_devices']).range(['#fffcf7', '#d68420']);
+    this.colorMap3 = d3.scaleLinear().domain(this.typeRange['median_non_home_dwell_time']).range(['#f5fff7', '#26943c']);
     this.brushedData = '';
     // console.log('range', d3.min(this.sd_eachCBG, d=>parseInt(d['full_time_work_behavior_devices'])), d3.max(this.sd_eachCBG, d=>parseInt(d['median_home_dwell_time'])))
 
@@ -647,6 +649,7 @@ class Content {
       zoom: 10.2,
       styles: mapStylesArray
     });
+    
     this.map.data.addGeoJson(
       //'./data/CBG_SaltLakeCounty.geojson' //this works but from path.
         that.slc_Json
@@ -661,18 +664,38 @@ class Content {
   styleMap(attrData){
     let that = this;
     let color = 'none';
+    //console.log(attrData);
     this.map.data.setStyle(function(d){    //Style for Choropleth map
       const CBGID = d.j['GEOID20'];
       if(attrData.has(CBGID)){
-        color = that.colorMap(attrData.get(CBGID));
-      }
-      
+        if(that.type == 'median_home_dwell_time'){
+          color = that.colorMap(attrData.get(CBGID));
+        }
+        else if(that.type == 'full_time_work_behavior_devices'){
+          color = that.colorMap2(attrData.get(CBGID));
+        }
+        else{
+          color = that.colorMap3(attrData.get(CBGID));
+        }
+        
+      }      
       return{
         fillColor: color,
         fillOpacity: 0.85,
         strokeWeight: 0.2
       }
     });
+
+    this.map.data.addListener('click', function(d){
+      const geoId = d.feature.j.GEOID20;
+      console.log(geoId)
+      var mapObject = new Map(attrData)
+      for(var obj of mapObject){
+        if(obj[0]==geoId){
+          console.log(obj[1],", ",that.type) //values of selected GeoId
+        }
+      }
+    })
   }
 
 
@@ -712,6 +735,7 @@ filterDataAfterBrushing(brushedDates){
     const selected_sd_eachCBG = this.sd_eachCBG.filter(d => brushedDates.includes(d.Date));
     grouped_sd_eachCBG = this.getCBGAttrData(selected_sd_eachCBG);
   }
+  //console.log(grouped_sd_eachCBG)
   this.styleMap(grouped_sd_eachCBG);
 
   // Map - Need to aggregate data by its date. (average? sum?)
