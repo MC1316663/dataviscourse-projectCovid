@@ -111,6 +111,12 @@ class Content {
       .attr("width", this.CHART_WIDTH)
       .attr("height", this.CHART_HEIGHT);
     
+    this.covidSVG.append('text')
+      .attr('x', 220)
+      .attr('y', 20)
+      .attr('font-size', '18px')
+      .text('Covid Cases');
+    
     let xAxisG = this.covidSVG.append('g')
       .attr('id', 'covidCase-x-axis');
 
@@ -246,6 +252,12 @@ class Content {
     this.homeSVG
       .attr("width", this.CHART_WIDTH)
       .attr("height", this.CHART_HEIGHT);
+
+    this.homeSVG.append('text')
+      .attr('x', 170)
+      .attr('y', 20)
+      .attr('font-size', '18px')
+      .text('Median Home Dwell Time');
     
     let xAxisG = this.homeSVG.append('g')
       .attr('id', 'home-x-axis');
@@ -295,6 +307,12 @@ class Content {
     this.outdoorSVG
       .attr("width", this.CHART_WIDTH)
       .attr("height", this.CHART_HEIGHT);
+
+    this.outdoorSVG.append('text')
+      .attr('x', 150)
+      .attr('y', 20)
+      .attr('font-size', '18px')
+      .text('Median Non Home Dwell Time');
     
     let xAxisG = this.outdoorSVG.append('g')
       .attr('id', 'outdoor-x-axis');
@@ -344,6 +362,12 @@ class Content {
     this.workSVG
       .attr("width", this.CHART_WIDTH)
       .attr("height", this.CHART_HEIGHT);
+
+    this.workSVG.append('text')
+      .attr('x', 185)
+      .attr('y', 20)
+      .attr('font-size', '18px')
+      .text('Work Device Counts');
     
     let xAxisG = this.workSVG.append('g')
       .attr('id', 'work-x-axis');
@@ -393,7 +417,7 @@ class Content {
     this.brushedDates;
     this.covidSVG.append('g')
     .attr('id', 'brush')
-    .call(d3.brushX().extent([[this.MARGIN.left, 15], [this.CHART_WIDTH, this.CHART_HEIGHT - this.MARGIN.bottom]]).on("start brush", brushed)
+    .call(d3.brushX().extent([[this.MARGIN.left, 20], [this.CHART_WIDTH, this.CHART_HEIGHT - this.MARGIN.bottom]]).on("start brush", brushed)
     .on("end", updateChoroplethMap));
 
     let that = this;
@@ -905,7 +929,7 @@ changeType(){
 /**
   * Draw table on the right panel
   */
- drawTable(data){
+drawTable(data){
   let tableDiv = d3.select('#TableBody');
   let table = tableDiv.selectAll('tr')
     .data(data)
@@ -926,9 +950,7 @@ changeType(){
   
   let outdoor = tableSel.filter((d,i) => i === 3);
   outdoor.text(d => d.median_non_home_dwell_time);
+
  }
-
-
-
 
 }
