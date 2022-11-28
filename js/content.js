@@ -115,6 +115,7 @@ class Content {
       .attr('x', 220)
       .attr('y', 20)
       .attr('font-size', '18px')
+      .style('fill', '#4e565f')
       .text('Covid Cases');
     
     let xAxisG = this.covidSVG.append('g')
@@ -257,6 +258,7 @@ class Content {
       .attr('x', 170)
       .attr('y', 20)
       .attr('font-size', '18px')
+      .style('fill', '#4e565f')
       .text('Median Home Dwell Time');
     
     let xAxisG = this.homeSVG.append('g')
@@ -312,6 +314,7 @@ class Content {
       .attr('x', 150)
       .attr('y', 20)
       .attr('font-size', '18px')
+      .style('fill', '#4e565f')
       .text('Median Non Home Dwell Time');
     
     let xAxisG = this.outdoorSVG.append('g')
@@ -367,6 +370,7 @@ class Content {
       .attr('x', 185)
       .attr('y', 20)
       .attr('font-size', '18px')
+      .style('fill', '#4e565f')
       .text('Work Device Counts');
     
     let xAxisG = this.workSVG.append('g')
