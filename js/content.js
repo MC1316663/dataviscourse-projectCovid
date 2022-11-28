@@ -93,13 +93,16 @@ class Content {
     this.workDeviceGraph();
     this.COVID_situation(this.slc_Covid);
     this.pieChart(this.sd_graph);
+    this.drawTable(this.sd_graph);
     this.brush();
     this.initMap();
 
 
-    //console.log("sd_graph: ", this.sd_graph);
+    console.log("sd_graph: ", this.sd_graph);
+    console.log('cbg: ', this.sd_eachCBG);
     //console.log("covid_case: ", this.slc_Covid);
   }
+
   /**
      * Bar chart for covid case graph
   */
@@ -288,7 +291,7 @@ class Content {
   /**
    * Bar chart for median outdoor spending time graph
    */
-   outdoorGraph(){
+  outdoorGraph(){
     this.outdoorSVG
       .attr("width", this.CHART_WIDTH)
       .attr("height", this.CHART_HEIGHT);
@@ -337,7 +340,7 @@ class Content {
   /**
    * Bar chart for work devices count graph
    */
-   workDeviceGraph(){
+  workDeviceGraph(){
     this.workSVG
       .attr("width", this.CHART_WIDTH)
       .attr("height", this.CHART_HEIGHT);
@@ -401,8 +404,7 @@ class Content {
         const [x0, x1] = selection;
 
         that.homeG.selectAll('rect')
-        .classed('brushed',  function(d){
-          return that.xScale(d.date_range_start) > x0 && that.xScale(d.date_range_start) < x1});
+        .classed('brushed',  function(d){return that.xScale(d.date_range_start) > x0 && that.xScale(d.date_range_start) < x1});
 
         that.outdoorG.selectAll('rect')
         .classed('brushed',  function(d){return that.xScale(d.date_range_start) > x0 && that.xScale(d.date_range_start) < x1});
@@ -415,12 +417,13 @@ class Content {
         //store brushed dates in array
         that.brushedDates = brushedData.map(d => d.date_range_start);
         //console.log(brushedDates)
-        that.filterDataByBrushing(that.brushedDates)
+        that.filterDataByBrushing(that.brushedDates);
 
+        that.drawTable(brushedData);
       }
     }
     function updateChoroplethMap(){
-      that.filterDataAfterBrushing(that.brushedDates)
+      that.filterDataAfterBrushing(that.brushedDates);
     }
   }
 
@@ -898,6 +901,33 @@ changeType(){
         that.filterDataAfterBrushing(that.brushedData);
     });
 }
+
+/**
+  * Draw table on the right panel
+  */
+ drawTable(data){
+  let tableDiv = d3.select('#TableBody');
+  let table = tableDiv.selectAll('tr')
+    .data(data)
+    .join('tr');
+
+  let tableSel = table.selectAll('td')
+    .data(d => [d, d, d, d])
+    .join('td');
+
+  let date = tableSel.filter((d,i) => i === 0);
+  date.text(d => d.date_range_start);
+
+  let home = tableSel.filter((d,i) => i === 1);
+  home.text(d => d.median_home_dwell_time);
+
+  let work = tableSel.filter((d,i) => i === 2);
+  work.text(d => d.sum_work_behavior_device);
+  
+  let outdoor = tableSel.filter((d,i) => i === 3);
+  outdoor.text(d => d.median_non_home_dwell_time);
+ }
+
 
 
 

@@ -18,3 +18,25 @@
   color: #949995;
   fill: #949995;
 }
+
+th {
+  font-weight: normal;
+  color: white;
+  padding-right: 6px;
+  height: 35px;
+  background-color: #738191;
+}
+
+td{
+  text-align: center;
+}
+
+#tableDiv {
+  overflow:scroll;
+}
+
+/* #columnHeaders {
+  position: fixed;
+} */
+
+
