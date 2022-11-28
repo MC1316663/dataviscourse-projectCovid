@@ -19,6 +19,8 @@ class Content {
     this.colorMap2 = d3.scaleLinear().domain(this.typeRange['full_time_work_behavior_devices']).range(['#fffcf7', '#d68420']);
     this.colorMap3 = d3.scaleLinear().domain(this.typeRange['median_non_home_dwell_time']).range(['#f5fff7', '#26943c']);
     this.brushedData = '';
+    this.clickedGeoID = 0;
+    this.preClickedGeoID = -1;
     // console.log('range', d3.min(this.sd_eachCBG, d=>parseInt(d['full_time_work_behavior_devices'])), d3.max(this.sd_eachCBG, d=>parseInt(d['median_home_dwell_time'])))
 
     this.MARGIN = {left: 33, bottom: 20, top: 10, right: 5};
@@ -780,37 +782,86 @@ class Content {
     let that = this;
     let color = 'none';
     //console.log(attrData);
-    this.map.data.setStyle(function(d){    //Style for Choropleth map
-      const CBGID = d.j['GEOID20'];
-      if(attrData.has(CBGID)){
-        if(that.type == 'median_home_dwell_time'){
-          color = that.colorMap(attrData.get(CBGID));
+    
+    this.map.data.addListener('click', function(d){//click function
+      const geoId = d.feature.j.GEOID20;
+      that.clickedGeoID = geoId
+      console.log(that.clickedGeoID)
+    
+         //var mapObject = new Map(attrData)
+      // for(var obj of mapObject){
+      //   if(obj[0]==geoId){
+      //     //console.log(obj[1],", ",that.type) //values of selected GeoId
+      //     console.log(obj[1]) //values of selected GeoId
+      //   }
+      // }
+      MapStyle();
+    })
+    MapStyle();
+    function MapStyle(){
+
+      that.map.data.setStyle(function(d){    //Style for Choropleth map
+        const CBGID = d.j['GEOID20'];
+        if(attrData.has(CBGID)){
+          if(that.type == 'median_home_dwell_time'){
+            color = that.colorMap(attrData.get(CBGID));
+          }
+          else if(that.type == 'full_time_work_behavior_devices'){
+            color = that.colorMap2(attrData.get(CBGID));
+          }
+          else{
+            color = that.colorMap3(attrData.get(CBGID));
+          }
+          
         }
-        else if(that.type == 'full_time_work_behavior_devices'){
-          color = that.colorMap2(attrData.get(CBGID));
+        if(that.clickedGeoID == CBGID){
+          if(that.preClickedGeoID == that.clickedGeoID){ //click the same polygon
+            that.preClickedGeoID = -1; //initialize
+            that.clickedGeoID =  0;
+
+            return{  
+              fillColor: color,
+              fillOpacity: 0.7,
+              strokeWeight: 0.2
+            }
+          }
+          else{
+            that.preClickedGeoID = that.clickedGeoID;
+            that.clickedGeoID = 0;
+
+            return{  
+              fillColor: color,
+              fillOpacity: 0.7,
+              strokeWeight: 2
+            }
+          }
+        } 
+        else{     
+          return{  
+            fillColor: color,
+            fillOpacity: 0.7,
+            strokeWeight: 0.2
+          }
         }
-        else{
-          color = that.colorMap3(attrData.get(CBGID));
-        }
-        
-      }      
-      return{
-        fillColor: color,
-        fillOpacity: 0.85,
-        strokeWeight: 0.2
-      }
+      });
+
+    }
+
+    var infowindow = new google.maps.InfoWindow(); //tooltips
+
+    this.map.data.addListener("mousemove", function(d){
+      
+      const geoId = d.feature.j.GEOID20;
+      //console.log(geoId)
+      let html = 'CBG: ' + geoId;
+      infowindow.setContent(html);
+      infowindow.setPosition(d.latLng);
+      infowindow.setOptions({pixelOffset: new google.maps.Size(5,-5)});
+      infowindow.open(this.map);
     });
 
-    this.map.data.addListener('click', function(d){
-      const geoId = d.feature.j.GEOID20;
-      console.log(geoId)
-      var mapObject = new Map(attrData)
-      for(var obj of mapObject){
-        if(obj[0]==geoId){
-          console.log(obj[1],", ",that.type) //values of selected GeoId
-        }
-      }
-    })
+
+    
   }
 
 
@@ -921,19 +972,68 @@ getCBGAttrData(selected_sd_eachCBG){
 
 changeType(){
   let that = this;
+
+  d3.select("#home-svg").append("rect") //initial highlight on home graph
+  .attr('x', 0)
+  .attr('y', 0)
+  .attr('width', 760)
+  .attr('height', 229)
+  .attr('fill', 'none')
+  .attr('stroke-width', 5)          
+  .attr('stroke', 'blue')
+  .attr("id", 'highlight')
+
+
   d3.select('#mapNav').selectAll('button')
     .on('click', function(){
         that.type = d3.select(this).attr('value');
         that.colorMap.domain(that.typeRange[that.type]);
         console.log('new colormap', that.colorMap.domain())
         that.filterDataAfterBrushing(that.brushedData);
+
+        //that.type: median_home_dwell_time, full_time_work_behavior_devices, median_non_home_dwell_time
+        d3.selectAll('#highlight').remove(); //initialize
+
+        HighlightGraph(that.type)        
+        function HighlightGraph(type){
+          var select;
+          var color;
+          if(type == "median_home_dwell_time"){
+            select = '#home-svg'
+            color = 'blue'
+          }else if(type == "full_time_work_behavior_devices"){
+            select = '#work-svg'
+            color = 'orange'
+          }else if(type == "median_non_home_dwell_time"){
+            select = '#outdoor-svg'
+            color = 'green'
+          }
+
+          d3.select(select).append("rect")
+          .attr('x', 0)
+          .attr('y', 0)
+          .attr('width', 760)
+          .attr('height', 229)
+          .attr('fill', 'none')
+          .attr('stroke-width', 5)         
+          .attr('stroke', color)
+          .attr("id", 'highlight')
+
+        }
+
     });
+
+
+    //Style of graphs by click button
+  
+    // if(that.type == )
 }
 
 /**
   * Draw table on the right panel
   */
 drawTable(data){
+  // console.log(data.length)
   if(data.length == 0){
     data = this.sd_graph;
   }
