@@ -972,12 +972,11 @@ getCBGAttrData(selected_sd_eachCBG){
 
 changeType(){
   let that = this;
-
   d3.select("#home-svg").append("rect") //initial highlight on home graph
   .attr('x', 0)
   .attr('y', 0)
-  .attr('width', 760)
-  .attr('height', 229)
+  .attr('width', that.CHART_WIDTH)
+  .attr('height', that.CHART_HEIGHT)
   .attr('fill', 'none')
   .attr('stroke-width', 5)          
   .attr('stroke', 'blue')
@@ -1012,8 +1011,8 @@ changeType(){
           d3.select(select).append("rect")
           .attr('x', 0)
           .attr('y', 0)
-          .attr('width', 760)
-          .attr('height', 229)
+          .attr('width', that.CHART_WIDTH)
+          .attr('height', that.CHART_HEIGHT)
           .attr('fill', 'none')
           .attr('stroke-width', 5)         
           .attr('stroke', color)
