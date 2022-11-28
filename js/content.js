@@ -91,6 +91,8 @@ class Content {
     this.homeGraph();
     this.outdoorGraph();
     this.workDeviceGraph();
+    this.COVID_situation(this.slc_Covid);
+    this.pieChart(this.sd_graph);
     this.brush();
     this.initMap();
 
@@ -150,6 +152,88 @@ class Content {
       .attr('y', d => yScale(d.InfC))
       .attr('opacity', 1)
       .attr('classed', 'covid-case');
+  }
+
+  COVID_situation(slc_Covid){
+    console.log(slc_Covid)
+    if(slc_Covid.length == 0){
+      slc_Covid = this.slc_Covid
+    }
+
+
+    const cases = slc_Covid.map(item => parseInt(item.InfC))
+    .reduce((prev, curr) => prev + curr, 0)
+    
+    
+
+    var recovCases = d3.max(slc_Covid, function(d){
+          return parseInt(d.Recov);
+        }) - slc_Covid[0].Recov
+    var diedCases = d3.max(slc_Covid, function(d){
+      return parseInt(d.Died);
+    }) - slc_Covid[0].Died
+    
+    if(slc_Covid.length == 1){ //brush only1 row
+      recovCases = slc_Covid[0].Recov
+      diedCases = slc_Covid[0].Died
+    }
+    
+    let xmargin = 40;
+    let ymargin = 20;
+
+
+    // Data
+    
+
+
+    let cumulative = this.covidSVG.append('g')
+    .attr('id', 'cumulative');
+    let recovered = this.covidSVG.append('g')
+    .attr('id', 'recovered');
+    let died = this.covidSVG.append('g')
+    .attr('id', 'died');
+
+    const cum = d3.select("#cumulative").append("rect")
+    .attr('width', 150)
+    .attr('height', 30)
+    .attr('x', xmargin)
+    .attr('y', 10)
+    .attr('fill', 'grey')
+    .attr('opacity', 0.2);
+
+    const cumT = d3.select("#cumulative").append("text")
+    .text("Cases: " + cases)
+    .attr("x", xmargin + 5)
+    .attr("y", 10 + ymargin)
+    
+    const rec = d3.select("#recovered").append("rect")
+    .attr('width', 150)
+    .attr('height', 30)
+    .attr('x', xmargin)
+    .attr('y', 45)
+    .attr('fill', 'grey')
+    .attr('opacity', 0.2)
+
+    const recT = d3.select("#recovered").append("text")
+    .text("Recovered: " + recovCases)
+    .attr("x", xmargin + 5)
+    .attr("y", 45 + ymargin)
+    
+    const die = d3.select("#died").append("rect")
+    .attr('width', 150)
+    .attr('height', 30)
+    .attr('x', xmargin)
+    .attr('y', 80)
+    .attr('fill', 'grey')
+    .attr('opacity', 0.2)
+
+    const dieT = d3.select("#died").append("text")
+    .text("Died: " + diedCases)
+    .attr("x", xmargin + 5)
+    .attr("y", 80 + ymargin)
+
+
+
   }
 
   /**
@@ -706,7 +790,7 @@ filterDataByBrushing(brushedDates){
   //Filter data 
   const selected_slc_Covid = that.slc_Covid.filter(d => brushedDates.includes(d.date))
   const selected_sd_graph = that.sd_graph.filter(d => brushedDates.includes(d.date_range_start))
-
+  
   //const selected_sd_eachCBG = that.sd_eachCBG.filter(d => brushedDates.includes(d.Date))
   //console.log(selected_sd_eachCBG)
 
@@ -720,6 +804,11 @@ filterDataByBrushing(brushedDates){
   
   //Table
 
+  
+}
+
+pieChart(sd_graph){
+  //console.log(sd_graph)
   
 }
 
@@ -737,6 +826,20 @@ filterDataAfterBrushing(brushedDates){
   }
   //console.log(grouped_sd_eachCBG)
   this.styleMap(grouped_sd_eachCBG);
+
+
+  //Covid-19 Data
+
+  const selected_slc_Covid = this.slc_Covid.filter(d => brushedDates.includes(d.date))
+  //console.log("asdsss", selected_slc_Covid)
+  //console.log(selected_slc_Covid)
+  //Refresh text in COVID-19 graph
+  d3.selectAll('#recovered').remove();
+  d3.selectAll('#cumulative').remove();
+  d3.selectAll('#died').remove();
+  
+  this.COVID_situation(selected_slc_Covid);
+  
 
   // Map - Need to aggregate data by its date. (average? sum?)
   
@@ -795,5 +898,7 @@ changeType(){
         that.filterDataAfterBrushing(that.brushedData);
     });
 }
+
+
 
 }
