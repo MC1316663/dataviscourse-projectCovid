@@ -934,7 +934,6 @@ changeType(){
   * Draw table on the right panel
   */
 drawTable(data){
-  console.log(data.length)
   if(data.length == 0){
     data = this.sd_graph;
   }
