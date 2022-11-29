@@ -1061,7 +1061,7 @@ changeType(){
   .attr('height', that.CHART_HEIGHT)
   .attr('fill', 'none')
   .attr('stroke-width', 5)          
-  .attr('stroke', 'blue')
+  .attr('stroke', 'rgb(10, 48, 107)')
   .attr("id", 'highlight')
 
 
@@ -1081,7 +1081,7 @@ changeType(){
           var color;
           if(type == "median_home_dwell_time"){
             select = '#home-svg'
-            color = 'blue'
+            color = 'rgb(10, 48, 107)'
           }else if(type == "full_time_work_behavior_devices"){
             select = '#work-svg'
             color = 'orange'
@@ -1118,7 +1118,7 @@ drawTable(data){
   if(data.length == 0){
     data = this.sd_graph;
   }
-  
+
   let tableDiv = d3.select('#TableBody');
   let table = tableDiv.selectAll('tr')
     .data(data)
