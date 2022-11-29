@@ -15,6 +15,7 @@ class Content {
     this.map = '';
     this.type='median_home_dwell_time'; // current focused type
     this.typeRange = {'median_home_dwell_time': [0, 1500], 'median_non_home_dwell_time': [0, 1400], 'full_time_work_behavior_devices': [0, 1000]};
+    this.colorRange = {'median_home_dwell_time': ['#F7FBFF', '#0A306B'], 'median_non_home_dwell_time': ['#f5fff7', '#26943c'], 'full_time_work_behavior_devices': ['#fffcf7', '#d68420']};
     this.colorMap = d3.scaleLinear().domain(this.typeRange['median_home_dwell_time']).range(['#F7FBFF', '#0A306B']);
     this.colorMap2 = d3.scaleLinear().domain(this.typeRange['full_time_work_behavior_devices']).range(['#fffcf7', '#d68420']);
     this.colorMap3 = d3.scaleLinear().domain(this.typeRange['median_non_home_dwell_time']).range(['#f5fff7', '#26943c']);
@@ -98,6 +99,7 @@ class Content {
     this.drawTable(this.sd_graph);
     this.brush();
     this.initMap();
+    this.updateColorBar();
 
 
     console.log("sd_graph: ", this.sd_graph);
@@ -287,7 +289,7 @@ class Content {
       .selectAll('path')
       .remove();
 
-    yAxisG.attr('transform', `translate(${this.MARGIN.left+4}, ${this.MARGIN.top})`)
+    yAxisG.attr('transform', `translate(${this.MARGIN.left}, ${this.MARGIN.top})`)
       .call(d3.axisLeft(yScale).ticks(3))
       .selectAll('path')
       .remove();
@@ -919,8 +921,8 @@ pieChart(sd_graph){
   ]
   
   //set size of extent first
-  let width = 280
-  let height = 280
+  let width = 300
+  let height = 300
 
   //Color scale
   let color = d3.scaleOrdinal()
@@ -944,7 +946,7 @@ pieChart(sd_graph){
   let arc = d3.arc(); //path set
 
   //set pie chart extent (size)
-  let radius = Math.min(width, height) / 2 - 65; //pie chart size
+  let radius = Math.min(width, height) / 2 - 40; //pie chart size
   arc.outerRadius(radius);
   arc.innerRadius(15); //inner radius size
 
@@ -957,7 +959,7 @@ pieChart(sd_graph){
   .duration(500)
     .attr("d", arc)
     .style("fill", d => color(d.data.key))
-    .attr("transform", "translate(" + width / 2.0 + "," + height / 3.2 + ")");
+    .attr("transform", "translate(" + width / 1.9 + "," + height / 1.9 + ")");
   
     
   console.log(arc.centroid(pieData[0])[1])  //Text
@@ -967,9 +969,9 @@ pieChart(sd_graph){
   .duration(500)
    .text(d => d.data.key + ": " + d.data.value.toFixed(2)) // 2 decimal degree
     .style("text-anchor", "middle")
-    .style("font-size", "12px")
+    .style("font-size", "15px")
     .style("fill", "white")
-     .attr("transform", d => "translate(" + (arc.centroid(d)[0]+150) + "," + (arc.centroid(d)[1] + 180) + ")")
+     .attr("transform", d => "translate(" + (arc.centroid(d)[0]+150) + "," + (arc.centroid(d)[1] + 150) + ")")
     //.attr("transform", d => "translate(100, 70)")
     
 
@@ -1071,6 +1073,9 @@ changeType(){
         that.colorMap.domain(that.typeRange[that.type]);
         console.log('new colormap', that.colorMap.domain())
         that.filterDataAfterBrushing(that.brushedData);
+        // update colormap
+        that.updateColorBar();
+
 
         //that.type: median_home_dwell_time, full_time_work_behavior_devices, median_non_home_dwell_time
         d3.selectAll('#highlight').remove(); //initialize
@@ -1141,5 +1146,44 @@ drawTable(data){
   outdoor.text(d => d.median_non_home_dwell_time);
 
  }
+
+ updateColorBar(){
+  const divSelector = d3.select('#colorMap');
+  const colorMapsvg = divSelector.select('svg');
+  colorMapsvg.selectAll('*').remove();
+  let divWid = parseFloat(divSelector.style('width'));
+  let divHei = parseFloat(divSelector.style('height'));
+  colorMapsvg.attr('width', divWid).attr('height', divHei);
+
+  // dimension setting
+  let barWid = 3*divWid/4;
+  let barHei = barWid/25;
+  let fontSize = barHei/1.5;
+
+  // get the range and color 
+  let range = this.typeRange[this.type];
+  let colorrange = this.colorRange[this.type];
+
+  // add the colormap bar
+  let graGenerator = colorMapsvg.append('linearGradient').attr('id', 'colorMapGrad')
+            .attr('x1', '0').attr('x2', '1').attr('y1', '0').attr('y2', '0');
+  graGenerator.append('stop').attr('offset', '0').attr('stop-color', colorrange[0]);
+  graGenerator.append('stop').attr('offset', '1').attr('stop-color', colorrange[1]);
+
+  // add a color bar
+  let barGroup = colorMapsvg.append('g'); 
+  barGroup.append('rect').attr('x', (divWid-barWid)/2).attr('y', (divHei-barHei)/2)
+    .attr('width', barWid).attr('height', barHei).attr('fill', `url(#colorMapGrad)`);
+  barGroup.append('text')
+      .attr('x', (divWid-barWid)/2).attr('y', divHei/2).attr('dy', '0.5em').attr('dx', '-0.2em')
+      .attr('text-anchor', 'end')
+      .attr('font-size', `${fontSize}px`)
+      .text(range[0]);
+  barGroup.append('text')
+      .attr('x', divWid/2+barWid/2).attr('y', divHei/2).attr('dy', '0.5em').attr('dx', '0.2em')
+      .attr('text-anchor', 'begin')
+      .attr('font-size', `${fontSize}px`)
+      .text(range[1]);
+}
 
 }
