@@ -453,6 +453,7 @@ class Content {
       }
     }
     function updateChoroplethMap(){
+      that.pieChart(brushedData);
       that.filterDataAfterBrushing(that.brushedDates);
     }
   }
@@ -891,7 +892,86 @@ filterDataByBrushing(brushedDates){
 
 pieChart(sd_graph){
   //console.log(sd_graph)
+  if(sd_graph.length == 0){
+    sd_graph = this.sd_graph;
+  }
+
+  //pie차트 default를 그리고 나주엥 클릭 했을 때 다른 하나의 데이터에다가
+  //원래 that.sd_graph와 클릭해서 나온 filtered sd_graph를 2개의 row를 가진 데이터로
+  //만들어 2개의 파이차트로 만들어보자.
+
+  //if brushed
+
+  const AvgHomeTime = sd_graph.reduce((total, d) => total + parseInt(d.median_home_dwell_time), 0 )/ sd_graph.length
+  const AvgNonHomeTime = sd_graph.reduce((total, d) => total + parseInt(d.median_non_home_dwell_time), 0 )/ sd_graph.length
+  const AvgworkCount = sd_graph.reduce((total, d) => total + parseInt(d.sum_work_behavior_device), 0 )/ sd_graph.length
   
+
+  const sdData =  [
+    {
+      key: "Home",
+      value: AvgHomeTime
+    },
+    {
+      key: "Non-Home",
+      value: AvgNonHomeTime
+    }
+  ]
+  
+  //set size of extent first
+  let width = 300
+  let height = 300
+
+  //Color scale
+  let color = d3.scaleOrdinal()
+  .range(['rgb(10, 48, 107)',
+      'rgb(38, 148, 60)']);
+
+  let pieSVG = d3.select("#piechartDiv")
+      .attr("width", width)
+      .attr("height", height)
+    // // .append('g')
+    // .attr("transform", "translate(" + width / 1.9 + "," + height / 1.9 + ")");
+
+  let pie = d3.pie();
+  pie.value(function(d){ //value data
+    return d.value
+  });
+
+  let pieData = pie(sdData); //Make pie data format
+  //console.log(pieData)
+
+  let arc = d3.arc(); //path set
+
+  //set pie chart extent (size)
+  let radius = Math.min(width, height) / 2 - 15; //pie chart size
+  arc.outerRadius(radius);
+  arc.innerRadius(15); //inner radius size
+
+  // let pieGroups = pieSVG.selectAll('g')
+  //   .data([1])
+  //   .join('g');
+
+  let pieGroups = pieSVG.selectAll("path").data(pieData).join("path")
+  .transition()
+    .attr("d", arc)
+    .style("fill", d => color(d.data.key))
+    .attr("transform", "translate(" + width / 1.9 + "," + height / 1.9 + ")");
+  
+    
+  console.log(arc.centroid(pieData[0])[1])  //Text
+
+  let textGroup = pieSVG.selectAll("text").data(pieData).join("text")
+  .transition()
+   .text(d => d.data.key + ": " + d.data.value.toFixed(2)) // 2 decimal degree
+    .style("text-anchor", "middle")
+    .style("font-size", "15px")
+    .style("fill", "white")
+     .attr("transform", d => "translate(" + (arc.centroid(d)[0]+150) + "," + (arc.centroid(d)[1] + 150) + ")")
+    //.attr("transform", d => "translate(100, 70)")
+    
+
+
 }
 
 filterDataAfterBrushing(brushedDates){
