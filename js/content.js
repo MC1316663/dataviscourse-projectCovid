@@ -15,6 +15,7 @@ class Content {
     this.map = '';
     this.type='median_home_dwell_time'; // current focused type
     this.typeRange = {'median_home_dwell_time': [0, 1500], 'median_non_home_dwell_time': [0, 1400], 'full_time_work_behavior_devices': [0, 1000]};
+    this.colorRange = {'median_home_dwell_time': ['#F7FBFF', '#0A306B'], 'median_non_home_dwell_time': ['#f5fff7', '#26943c'], 'full_time_work_behavior_devices': ['#fffcf7', '#d68420']};
     this.colorMap = d3.scaleLinear().domain(this.typeRange['median_home_dwell_time']).range(['#F7FBFF', '#0A306B']);
     this.colorMap2 = d3.scaleLinear().domain(this.typeRange['full_time_work_behavior_devices']).range(['#fffcf7', '#d68420']);
     this.colorMap3 = d3.scaleLinear().domain(this.typeRange['median_non_home_dwell_time']).range(['#f5fff7', '#26943c']);
@@ -98,6 +99,9 @@ class Content {
     this.drawTable(this.sd_graph);
     this.brush();
     this.initMap();
+
+    // update color map
+    this.updateColorBar();
 
 
     console.log("sd_graph: ", this.sd_graph);
@@ -1071,6 +1075,8 @@ changeType(){
         that.colorMap.domain(that.typeRange[that.type]);
         console.log('new colormap', that.colorMap.domain())
         that.filterDataAfterBrushing(that.brushedData);
+        // update colormap
+        that.updateColorBar();
 
         //that.type: median_home_dwell_time, full_time_work_behavior_devices, median_non_home_dwell_time
         d3.selectAll('#highlight').remove(); //initialize
@@ -1141,5 +1147,45 @@ drawTable(data){
   outdoor.text(d => d.median_non_home_dwell_time);
 
  }
+
+
+updateColorBar(){
+  const divSelector = d3.select('#colorMap');
+  const colorMapsvg = divSelector.select('svg');
+  colorMapsvg.selectAll('*').remove();
+  let divWid = parseFloat(divSelector.style('width'));
+  let divHei = parseFloat(divSelector.style('height'));
+  colorMapsvg.attr('width', divWid).attr('height', divHei);
+
+  // dimension setting
+  let barWid = 3*divWid/4;
+  let barHei = barWid/25;
+  let fontSize = barHei/1.5;
+
+  // get the range and color 
+  let range = this.typeRange[this.type];
+  let colorrange = this.colorRange[this.type];
+
+  // add the colormap bar
+  let graGenerator = colorMapsvg.append('linearGradient').attr('id', 'colorMapGrad')
+            .attr('x1', '0').attr('x2', '1').attr('y1', '0').attr('y2', '0');
+  graGenerator.append('stop').attr('offset', '0').attr('stop-color', colorrange[0]);
+  graGenerator.append('stop').attr('offset', '1').attr('stop-color', colorrange[1]);
+
+  // add a color bar
+  let barGroup = colorMapsvg.append('g'); 
+  barGroup.append('rect').attr('x', (divWid-barWid)/2).attr('y', (divHei-barHei)/2)
+    .attr('width', barWid).attr('height', barHei).attr('fill', `url(#colorMapGrad)`);
+  barGroup.append('text')
+      .attr('x', (divWid-barWid)/2).attr('y', divHei/2).attr('dy', '0.5em').attr('dx', '-0.2em')
+      .attr('text-anchor', 'end')
+      .attr('font-size', `${fontSize}px`)
+      .text(range[0]);
+  barGroup.append('text')
+      .attr('x', divWid/2+barWid/2).attr('y', divHei/2).attr('dy', '0.5em').attr('dx', '0.2em')
+      .attr('text-anchor', 'begin')
+      .attr('font-size', `${fontSize}px`)
+      .text(range[1]);
+}
 
 }
