@@ -287,7 +287,7 @@ class Content {
       .selectAll('path')
       .remove();
 
-    yAxisG.attr('transform', `translate(${this.MARGIN.left}, ${this.MARGIN.top})`)
+    yAxisG.attr('transform', `translate(${this.MARGIN.left+4}, ${this.MARGIN.top})`)
       .call(d3.axisLeft(yScale).ticks(3))
       .selectAll('path')
       .remove();
@@ -919,8 +919,8 @@ pieChart(sd_graph){
   ]
   
   //set size of extent first
-  let width = 300
-  let height = 300
+  let width = 280
+  let height = 280
 
   //Color scale
   let color = d3.scaleOrdinal()
@@ -944,7 +944,7 @@ pieChart(sd_graph){
   let arc = d3.arc(); //path set
 
   //set pie chart extent (size)
-  let radius = Math.min(width, height) / 2 - 15; //pie chart size
+  let radius = Math.min(width, height) / 2 - 65; //pie chart size
   arc.outerRadius(radius);
   arc.innerRadius(15); //inner radius size
 
@@ -957,7 +957,7 @@ pieChart(sd_graph){
   .duration(500)
     .attr("d", arc)
     .style("fill", d => color(d.data.key))
-    .attr("transform", "translate(" + width / 1.9 + "," + height / 1.9 + ")");
+    .attr("transform", "translate(" + width / 2.0 + "," + height / 3.2 + ")");
   
     
   console.log(arc.centroid(pieData[0])[1])  //Text
@@ -967,9 +967,9 @@ pieChart(sd_graph){
   .duration(500)
    .text(d => d.data.key + ": " + d.data.value.toFixed(2)) // 2 decimal degree
     .style("text-anchor", "middle")
-    .style("font-size", "15px")
+    .style("font-size", "12px")
     .style("fill", "white")
-     .attr("transform", d => "translate(" + (arc.centroid(d)[0]+150) + "," + (arc.centroid(d)[1] + 150) + ")")
+     .attr("transform", d => "translate(" + (arc.centroid(d)[0]+150) + "," + (arc.centroid(d)[1] + 180) + ")")
     //.attr("transform", d => "translate(100, 70)")
     
 
