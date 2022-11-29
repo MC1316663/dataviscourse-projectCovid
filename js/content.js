@@ -954,6 +954,7 @@ pieChart(sd_graph){
 
   let pieGroups = pieSVG.selectAll("path").data(pieData).join("path")
   .transition()
+  .duration(500)
     .attr("d", arc)
     .style("fill", d => color(d.data.key))
     .attr("transform", "translate(" + width / 1.9 + "," + height / 1.9 + ")");
@@ -963,6 +964,7 @@ pieChart(sd_graph){
 
   let textGroup = pieSVG.selectAll("text").data(pieData).join("text")
   .transition()
+  .duration(500)
    .text(d => d.data.key + ": " + d.data.value.toFixed(2)) // 2 decimal degree
     .style("text-anchor", "middle")
     .style("font-size", "15px")
