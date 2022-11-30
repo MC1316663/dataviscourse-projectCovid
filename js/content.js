@@ -21,6 +21,7 @@ class Content {
     this.colorMap3 = d3.scaleLinear().domain(this.typeRange['median_non_home_dwell_time']).range(['#f5fff7', '#26943c']);
     this.brushedData = '';
     this.clickedGeoID = 0;
+    this.selectCBG = false
     this.preClickedGeoID = -1;
     // console.log('range', d3.min(this.sd_eachCBG, d=>parseInt(d['full_time_work_behavior_devices'])), d3.max(this.sd_eachCBG, d=>parseInt(d['median_home_dwell_time'])))
 
@@ -455,6 +456,7 @@ class Content {
       }
     }
     function updateChoroplethMap(){
+
       that.pieChart(brushedData);
       that.filterDataAfterBrushing(that.brushedDates);
     }
@@ -789,7 +791,7 @@ class Content {
     this.map.data.addListener('click', function(d){//click function
       const geoId = d.feature.j.GEOID20;
       that.clickedGeoID = geoId
-      console.log(that.clickedGeoID)
+      that.selectCBG = true
     
          //var mapObject = new Map(attrData)
       // for(var obj of mapObject){
@@ -798,12 +800,15 @@ class Content {
       //     console.log(obj[1]) //values of selected GeoId
       //   }
       // }
-      MapStyle();
+      MapStyle("cbgClick");
     })
-    MapStyle();
-    function MapStyle(){
+    MapStyle("default");
 
-      that.map.data.setStyle(function(d){    //Style for Choropleth map
+    //defult map style
+  
+    function MapStyle(cond){
+      
+      that.map.data.setStyle(function(d){    //Style for Choropleth cbg 
         const CBGID = d.j['GEOID20'];
         if(attrData.has(CBGID)){
           if(that.type == 'median_home_dwell_time'){
@@ -817,8 +822,9 @@ class Content {
           }
           
         }
-        if(that.clickedGeoID == CBGID){
-          if(that.preClickedGeoID == that.clickedGeoID){ //click the same polygon
+        if(that.clickedGeoID == CBGID){ //if click cbg in the map
+          if(that.preClickedGeoID == that.clickedGeoID && cond == "cbgClick"){ //click the same polygon
+            that.selectCBG = false
             that.preClickedGeoID = -1; //initialize
             that.clickedGeoID =  0;
 
@@ -829,8 +835,10 @@ class Content {
             }
           }
           else{
-            that.preClickedGeoID = that.clickedGeoID;
-            that.clickedGeoID = 0;
+            if(cond == "cbgClick"){
+              that.preClickedGeoID = that.clickedGeoID;
+            }
+            //that.clickedGeoID = 0;
 
             return{  
               fillColor: color,
@@ -838,7 +846,7 @@ class Content {
               strokeWeight: 2
             }
           }
-        } 
+        }
         else{     
           return{  
             fillColor: color,
@@ -847,7 +855,9 @@ class Content {
           }
         }
       });
-
+      setTimeout(function() { that.pieForSelectedCBG()}, 1); //delay
+      // that.pieForSelectedCBG()
+      
     }
 
     var infowindow = new google.maps.InfoWindow(); //tooltips
@@ -855,7 +865,6 @@ class Content {
     this.map.data.addListener("mousemove", function(d){
       
       const geoId = d.feature.j.GEOID20;
-      //console.log(geoId)
       let html = 'CBG: ' + geoId;
       infowindow.setContent(html);
       infowindow.setPosition(d.latLng);
@@ -898,6 +907,7 @@ pieChart(sd_graph){
     sd_graph = this.sd_graph;
   }
 
+  // console.log(sd_graph)
   //pie차트 default를 그리고 나주엥 클릭 했을 때 다른 하나의 데이터에다가
   //원래 that.sd_graph와 클릭해서 나온 filtered sd_graph를 2개의 row를 가진 데이터로
   //만들어 2개의 파이차트로 만들어보자.
@@ -922,61 +932,230 @@ pieChart(sd_graph){
   
   //set size of extent first
   let width = 300
-  let height = 300
+  let height = 185
 
   //Color scale
   let color = d3.scaleOrdinal()
   .range(['rgb(10, 48, 107)',
       'rgb(38, 148, 60)']);
 
+  let pielegend = d3.select("#pieLegend")
+  .attr("width", width)
+  .attr("height", 30)
+      
   let pieSVG = d3.select("#piechartDiv")
       .attr("width", width)
       .attr("height", height)
+
+
     // // .append('g')
     // .attr("transform", "translate(" + width / 1.9 + "," + height / 1.9 + ")");
 
   let pie = d3.pie();
-  pie.value(function(d){ //value data
-    return d.value
-  });
-
+    pie.value(function(d){ //value data
+      return d.value
+    });
+  
   let pieData = pie(sdData); //Make pie data format
-  //console.log(pieData)
+  console.log(pieData)
 
+
+    //Legend
+
+  let textGroup = pielegend.selectAll("text").data(pieData).join("text")
+  .transition()
+  .duration(500)
+   .text(d => d.data.key + ' (min)') // 2 decimal degree
+    .style("text-anchor", "left")
+    .style("font-size", "15px")
+    .style("fill", "black")
+    //.attr("transform", d => "translate(" + (arc.centroid(d)[0]+150) + "," + (arc.centroid(d)[1] + 150) + ")")
+    .attr("transform", function(d){
+      if(d.data.key == "Home"){
+        var trans = "translate(60, 20)"
+      }
+      else if(d.data.key == "Non-Home"){
+        var trans = "translate(170, 20)"
+      }
+      return trans
+    })
+    //.attr("transform", d => "translate(100, 70)")
+
+    let rectG = pielegend.selectAll("rect").data(pieData).join("rect")
+    .attr('x', function(d){
+      if(d.data.key == "Home"){
+        var x = 40
+      }
+      else if(d.data.key == "Non-Home"){
+        var x = 150
+      }
+      return x
+    })
+    .attr('y', 10)
+    .attr('width', 10)
+    .attr('height', 10)
+    .attr('fill', function(d){
+      if(d.data.key == "Home"){
+        var c = "blue"
+      }
+      else if(d.data.key == "Non-Home"){
+        var c = "green"
+      }
+      return c
+    })
+    .attr('stroke-width', 1)          
+    .attr('stroke', 'black')
+ 
+
+  //PieChart
+
+//Pie for SLC
   let arc = d3.arc(); //path set
 
   //set pie chart extent (size)
-  let radius = Math.min(width, height) / 2 - 40; //pie chart size
+  let radius = Math.min(width, height) / 2 - 15; //pie chart size
   arc.outerRadius(radius);
   arc.innerRadius(15); //inner radius size
-
-  // let pieGroups = pieSVG.selectAll('g')
-  //   .data([1])
-  //   .join('g');
 
   let pieGroups = pieSVG.selectAll("path").data(pieData).join("path")
   .transition()
   .duration(500)
     .attr("d", arc)
     .style("fill", d => color(d.data.key))
-    .attr("transform", "translate(" + width / 1.9 + "," + height / 1.9 + ")");
+    .attr("transform", "translate(" + width / 1.9 + "," + height / 2.2 + ")");
   
-    
-  console.log(arc.centroid(pieData[0])[1])  //Text
-
-  let textGroup = pieSVG.selectAll("text").data(pieData).join("text")
+  let textGrForPie = pieSVG.selectAll("text").data(pieData).join("text")
   .transition()
   .duration(500)
-   .text(d => d.data.key + ": " + d.data.value.toFixed(2)) // 2 decimal degree
-    .style("text-anchor", "middle")
+    .text(d => d.data.value.toFixed(2)) // 2 decimal degree
+    .style("text-anchor", "left")
     .style("font-size", "15px")
     .style("fill", "white")
-     .attr("transform", d => "translate(" + (arc.centroid(d)[0]+150) + "," + (arc.centroid(d)[1] + 150) + ")")
-    //.attr("transform", d => "translate(100, 70)")
+    .style("stroke", "black")
+    .style("stroke-width", '.2px')
+    .attr("font-weight", 'bold')
+    .attr("transform", d => "translate(" + (arc.centroid(d)[0]+140) + "," + (arc.centroid(d)[1] + 90) + ")")
+    
+  
     
 
-
 }
+
+pieForSelectedCBG(){
+  const that = this
+  // console.log("data:", that.sd_eachCBG)
+  // console.log("brushedData: ", that.brushedData)
+  // console.log("clickedCBG", that.clickedGeoID)
+  // console.log("preclickedCBG", that.preClickedGeoID)
+  // console.log("selectCBG:", that.selectCBG)
+
+  
+  //console.log("asdsad", sd_graph)
+  var width = 300
+  var height = 150
+  let pieCBG = d3.select("#piechartCBG")
+      .attr("width", width)
+      .attr("height", height)
+    // // .append('g')
+    // .attr("transform", "translate(" + width / 1.9 + "," + height / 1.9 + ")");
+
+  let textCBG = d3.select("#textCBG")
+    .attr("width", width)
+    .attr("height", 30)   
+
+  //title
+  let textCBGs = textCBG.selectAll("text").data([this.clickedGeoID]).join("text")
+    .text(function(d){
+      return "Selected CBG: " + d
+    })
+    .style("text-anchor", "left")
+    .style("font-size", "15px")
+    .style("fill", "black")
+    .attr("transform", "translate(10,20)")
+
+
+  
+  //Color scale
+  let color = d3.scaleOrdinal()
+  .range(['rgb(10, 48, 107)',
+      'rgb(38, 148, 60)']);
+  
+  if(that.clickedGeoID == 0){ //No selection of CBG
+    //remove pie chart
+    d3.selectAll("#pieForSelection").remove();
+  }
+  else if(that.clickedGeoID !== 0){ //need to use whole period
+    var selected_sd_eachCBG = that.sd_eachCBG.filter(d => that.clickedGeoID.includes(d.origin_census_block_group))
+    console.log("selected_sd_eachCBG", selected_sd_eachCBG)
+
+    if(that.brushedData.length > 0){
+      selected_sd_eachCBG = selected_sd_eachCBG.filter(d => that.brushedData.includes(d.Date))
+      console.log("selected_sd_eachCBG", selected_sd_eachCBG)
+    }
+
+    //Data for pie
+    const AvgHomeTime = selected_sd_eachCBG.reduce((total, d) => total + parseInt(d.median_home_dwell_time), 0 )/ selected_sd_eachCBG.length
+    const AvgNonHomeTime = selected_sd_eachCBG.reduce((total, d) => total + parseInt(d.median_non_home_dwell_time), 0 )/ selected_sd_eachCBG.length
+    const sdData =  [
+      {
+        key: "Home",
+        value: AvgHomeTime
+      },
+      {
+        key: "Non-Home",
+        value: AvgNonHomeTime
+      }
+    ]
+    // console.log(sdData)
+  
+  
+    let pie = d3.pie();
+      pie.value(function(d){ //value data
+        return d.value
+      });
+
+    //PieChart
+    let pieData = pie(sdData); //Make pie data format
+    // console.log(pieData)
+    let arc = d3.arc(); //path set
+
+    //set pie chart extent (size)
+    let radius = Math.min(width, height) / 2 - 1; //pie chart size
+    arc.outerRadius(radius);
+    arc.innerRadius(15); //inner radius size
+
+    let pieGroups = pieCBG.selectAll("path").data(pieData).join("path")
+    .transition()
+    // .duration(500)
+      .attr("d", arc)
+      .style("fill", d => color(d.data.key))
+      .attr("transform", "translate(" + width / 1.9 + "," + height / 2.0 + ")")
+      .attr("id", "pieForSelection");
+    
+    let textGrForPie = pieCBG.selectAll("text").data(pieData).join("text")
+    .transition()
+    .duration(500)
+      .text(d => d.data.value.toFixed(2)) // 2 decimal degree
+      .style("text-anchor", "left")
+      .style("font-size", "15px")
+      .style("fill", function(d){
+        if(selected_sd_eachCBG.length == 0){ //if ther is no data
+          return "black"
+        }
+        else{
+          return "white"
+        }
+         })
+      .style("stroke", "black")
+      .style("stroke-width", '.2px')
+      .attr("font-weight", 'bold')
+      .attr("transform", d => "translate(" + (arc.centroid(d)[0]+140) + "," + (arc.centroid(d)[1] + 80) + ")")
+      .attr("id", "pieForSelection");
+      
+  }
+  
+}
+
 
 filterDataAfterBrushing(brushedDates){
   this.brushedData = brushedDates;
