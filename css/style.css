@@ -32,11 +32,16 @@ th {
 }
 
 th:first-of-type {
-  width: 60px;
+  width: 100px;
 }
 
-td{
+td {
+  width: 50px;
   text-align: center;
+}
+
+td:last-of-type {
+  width: 70px;
 }
 
 #tableDiv {

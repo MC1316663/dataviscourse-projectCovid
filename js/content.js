@@ -46,6 +46,8 @@ class Content {
 
     this.sd_graph = this.sd_graph.splice(67, this.sd_graph.length);
 
+    this.sd_eachCBG = this.sd_eachCBG.splice(40939, this.sd_eachCBG.length);
+
     //d3 setting up 
     this.CHART_WIDTH = parseInt(d3.select('#CovidCaseG').style('width'));
     this.CHART_HEIGHT = parseInt(d3.select('#CovidCaseG').style('height'));
@@ -290,7 +292,7 @@ class Content {
       .selectAll('path')
       .remove();
 
-    yAxisG.attr('transform', `translate(${this.MARGIN.left}, ${this.MARGIN.top})`)
+    yAxisG.attr('transform', `translate(${this.MARGIN.left+3}, ${this.MARGIN.top})`)
       .call(d3.axisLeft(yScale).ticks(3))
       .selectAll('path')
       .remove();
@@ -800,6 +802,10 @@ class Content {
       //     console.log(obj[1]) //values of selected GeoId
       //   }
       // }
+      console.log('this is GeoID: ', that.clickedGeoID)
+      let cbgData = that.sd_eachCBG.filter(d => d.origin_census_block_group == that.clickedGeoID);
+      that.drawTable(cbgData);
+
       MapStyle("cbgClick");
     })
     MapStyle("default");
@@ -931,8 +937,8 @@ pieChart(sd_graph){
   ]
   
   //set size of extent first
-  let width = 300
-  let height = 185
+  let width = 270
+  let height = 160
 
   //Color scale
   let color = d3.scaleOrdinal()
@@ -968,14 +974,14 @@ pieChart(sd_graph){
    .text(d => d.data.key + ' (min)') // 2 decimal degree
     .style("text-anchor", "left")
     .style("font-size", "15px")
-    .style("fill", "black")
+    .style("fill", "#4e565f")
     //.attr("transform", d => "translate(" + (arc.centroid(d)[0]+150) + "," + (arc.centroid(d)[1] + 150) + ")")
     .attr("transform", function(d){
       if(d.data.key == "Home"){
-        var trans = "translate(60, 20)"
+        var trans = "translate(35, 20)"
       }
       else if(d.data.key == "Non-Home"){
-        var trans = "translate(170, 20)"
+        var trans = "translate(145, 20)"
       }
       return trans
     })
@@ -984,10 +990,10 @@ pieChart(sd_graph){
     let rectG = pielegend.selectAll("rect").data(pieData).join("rect")
     .attr('x', function(d){
       if(d.data.key == "Home"){
-        var x = 40
+        var x = 20
       }
       else if(d.data.key == "Non-Home"){
-        var x = 150
+        var x = 130
       }
       return x
     })
@@ -1013,7 +1019,7 @@ pieChart(sd_graph){
   let arc = d3.arc(); //path set
 
   //set pie chart extent (size)
-  let radius = Math.min(width, height) / 2 - 15; //pie chart size
+  let radius = Math.min(width, height+10) / 2 - 15; //pie chart size
   arc.outerRadius(radius);
   arc.innerRadius(15); //inner radius size
 
@@ -1022,7 +1028,7 @@ pieChart(sd_graph){
   .duration(500)
     .attr("d", arc)
     .style("fill", d => color(d.data.key))
-    .attr("transform", "translate(" + width / 1.9 + "," + height / 2.2 + ")");
+    .attr("transform", "translate(" + width / 2 + "," + (height+10) / 2.4 + ")");
   
   let textGrForPie = pieSVG.selectAll("text").data(pieData).join("text")
   .transition()
@@ -1034,10 +1040,7 @@ pieChart(sd_graph){
     .style("stroke", "black")
     .style("stroke-width", '.2px')
     .attr("font-weight", 'bold')
-    .attr("transform", d => "translate(" + (arc.centroid(d)[0]+140) + "," + (arc.centroid(d)[1] + 90) + ")")
-    
-  
-    
+    .attr("transform", d => "translate(" + (arc.centroid(d)[0]+110) + "," + (arc.centroid(d)[1] + 80) + ")")
 
 }
 
@@ -1051,7 +1054,7 @@ pieForSelectedCBG(){
 
   
   //console.log("asdsad", sd_graph)
-  var width = 300
+  var width = 270
   var height = 150
   let pieCBG = d3.select("#piechartCBG")
       .attr("width", width)
@@ -1061,7 +1064,7 @@ pieForSelectedCBG(){
 
   let textCBG = d3.select("#textCBG")
     .attr("width", width)
-    .attr("height", 30)   
+    .attr("height", 20)   
 
   //title
   let textCBGs = textCBG.selectAll("text").data([this.clickedGeoID]).join("text")
@@ -1070,8 +1073,8 @@ pieForSelectedCBG(){
     })
     .style("text-anchor", "left")
     .style("font-size", "15px")
-    .style("fill", "black")
-    .attr("transform", "translate(10,20)")
+    .style("fill", "#4e565f")
+    .attr("transform", "translate(10,11)")
 
 
   
@@ -1120,7 +1123,7 @@ pieForSelectedCBG(){
     let arc = d3.arc(); //path set
 
     //set pie chart extent (size)
-    let radius = Math.min(width, height) / 2 - 1; //pie chart size
+    let radius = Math.min(width, height) / 2 - 4; //pie chart size
     arc.outerRadius(radius);
     arc.innerRadius(15); //inner radius size
 
@@ -1129,7 +1132,7 @@ pieForSelectedCBG(){
     // .duration(500)
       .attr("d", arc)
       .style("fill", d => color(d.data.key))
-      .attr("transform", "translate(" + width / 1.9 + "," + height / 2.0 + ")")
+      .attr("transform", "translate(" + width / 2.0 + "," + height / 2.1 + ")")
       .attr("id", "pieForSelection");
     
     let textGrForPie = pieCBG.selectAll("text").data(pieData).join("text")
@@ -1149,7 +1152,7 @@ pieForSelectedCBG(){
       .style("stroke", "black")
       .style("stroke-width", '.2px')
       .attr("font-weight", 'bold')
-      .attr("transform", d => "translate(" + (arc.centroid(d)[0]+140) + "," + (arc.centroid(d)[1] + 80) + ")")
+      .attr("transform", d => "translate(" + (arc.centroid(d)[0]+115) + "," + (arc.centroid(d)[1] + 80) + ")")
       .attr("id", "pieForSelection");
       
   }
@@ -1242,7 +1245,7 @@ changeType(){
   .attr('height', that.CHART_HEIGHT)
   .attr('fill', 'none')
   .attr('stroke-width', 5)          
-  .attr('stroke', 'blue')
+  .attr('stroke', 'rgb(10, 48, 107)')
   .attr("id", 'highlight')
 
 
@@ -1265,7 +1268,7 @@ changeType(){
           var color;
           if(type == "median_home_dwell_time"){
             select = '#home-svg'
-            color = 'blue'
+            color = 'rgb(10, 48, 107)'
           }else if(type == "full_time_work_behavior_devices"){
             select = '#work-svg'
             color = 'orange'
@@ -1313,16 +1316,18 @@ drawTable(data){
     .join('td');
 
   let date = tableSel.filter((d,i) => i === 0);
-  date.text(d => d.date_range_start);
+  //date.text(d => console.log(d.date))
+  date.text(d => {if(typeof(d.date_range_start) == "undefined"){return d.Date}else{return d.date_range_start}});
 
   let home = tableSel.filter((d,i) => i === 1);
   home.text(d => d.median_home_dwell_time);
 
   let work = tableSel.filter((d,i) => i === 2);
-  work.text(d => d.sum_work_behavior_device);
+  //work.text(d => console.log(d.sum_work_behavior_device))
+  work.text(d => {if(typeof(d.sum_work_behavior_device) == "undefined"){return d.work_behavior_device}else{return d.sum_work_behavior_device}});
   
-  let outdoor = tableSel.filter((d,i) => i === 3);
-  outdoor.text(d => d.median_non_home_dwell_time);
+  let nonHome = tableSel.filter((d,i) => i === 3);
+  nonHome.text(d => d.median_non_home_dwell_time);
 
  }
 
