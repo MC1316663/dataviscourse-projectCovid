@@ -20,6 +20,7 @@ class Content {
     this.colorMap2 = d3.scaleLinear().domain(this.typeRange['full_time_work_behavior_devices']).range(['#fffcf7', '#d68420']);
     this.colorMap3 = d3.scaleLinear().domain(this.typeRange['median_non_home_dwell_time']).range(['#f5fff7', '#26943c']);
     this.brushedData = '';
+    this.brushedFilteredData;
     this.clickedGeoID = 0;
     this.selectCBG = false
     this.preClickedGeoID = -1;
@@ -448,12 +449,12 @@ class Content {
         .classed('brushed',  function(d){return that.xScale(d.date_range_start) > x0 && that.xScale(d.date_range_start) < x1});
         
         brushedData = that.sd_graph.filter(d => that.xScale(d.date_range_start) > x0 && that.xScale(d.date_range_start) < x1);
-
+        that.brushedFilteredData = brushedData
         //store brushed dates in array
         that.brushedDates = brushedData.map(d => d.date_range_start);
         //console.log(brushedDates)
         that.filterDataByBrushing(that.brushedDates);
-
+        
         that.drawTable(brushedData);
       }
     }
@@ -804,6 +805,7 @@ class Content {
       // }
       console.log('this is GeoID: ', that.clickedGeoID)
       let cbgData = that.sd_eachCBG.filter(d => d.origin_census_block_group == that.clickedGeoID);
+
       that.drawTable(cbgData);
 
       MapStyle("cbgClick");
@@ -833,7 +835,6 @@ class Content {
             that.selectCBG = false
             that.preClickedGeoID = -1; //initialize
             that.clickedGeoID =  0;
-
             return{  
               fillColor: color,
               fillOpacity: 0.7,
