@@ -72,9 +72,10 @@ body{
   transform: translateY(-50%);
 }
 #description{
-  font-size: 18px;
+  font-size: 15px;
   fill: #4e565f;
-  line-height: 80px;
+  opacity: 0.6;
+  overflow-y: scroll;
   /* text-align: center; */
 }
 #download{

@@ -468,7 +468,7 @@ class Content {
   /**
    * Intialize the map object
    */
-  initMap(){
+  async initMap(){
     const that = this;
     const mapStylesArray = [
       {
@@ -769,7 +769,7 @@ class Content {
         ]
       }
     ];
-    this.map = new google.maps.Map(d3.select("#Map").node(), {
+    this.map = await new google.maps.Map(d3.select("#Map").node(), {
       center: { lat: 40.69, lng: -111.906 },
       zoom: 10.2,
       styles: mapStylesArray
