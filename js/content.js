@@ -14,7 +14,7 @@ class Content {
     // map object
     this.map = '';
     this.type='median_home_dwell_time'; // current focused type
-    this.typeRange = {'median_home_dwell_time': [0, 1500], 'median_non_home_dwell_time': [0, 1400], 'full_time_work_behavior_devices': [0, 1000]};
+    this.typeRange = {'median_home_dwell_time': [0, 1500], 'median_non_home_dwell_time': [0, 200], 'full_time_work_behavior_devices': [0, 10]};
     this.colorRange = {'median_home_dwell_time': ['#F7FBFF', '#0A306B'], 'median_non_home_dwell_time': ['#f5fff7', '#26943c'], 'full_time_work_behavior_devices': ['#fffcf7', '#d68420']};
     this.colorMap = d3.scaleLinear().domain(this.typeRange['median_home_dwell_time']).range(['#F7FBFF', '#0A306B']);
     this.colorMap2 = d3.scaleLinear().domain(this.typeRange['full_time_work_behavior_devices']).range(['#fffcf7', '#d68420']);
@@ -789,7 +789,7 @@ class Content {
   styleMap(attrData){
     let that = this;
     let color = 'none';
-    //console.log(attrData);
+    console.log(attrData);
     
     this.map.data.addListener('click', function(d){//click function
       const geoId = d.feature.j.GEOID20;
@@ -1167,13 +1167,14 @@ filterDataAfterBrushing(brushedDates){
   if(!brushedDates || brushedDates.length == 0){
     // when dismiss a brush area, recover the entire day
     this.brushedData = '';
+    console.log("'ss", this.sd_eachCBG)
     grouped_sd_eachCBG = this.getCBGAttrData(this.sd_eachCBG);
   }
   else{
     const selected_sd_eachCBG = this.sd_eachCBG.filter(d => brushedDates.includes(d.Date));
     grouped_sd_eachCBG = this.getCBGAttrData(selected_sd_eachCBG);
   }
-  //console.log(grouped_sd_eachCBG)
+  //console.log("asd", grouped_sd_eachCBG)
   this.styleMap(grouped_sd_eachCBG);
 
 
@@ -1228,11 +1229,26 @@ filterDataAfterBrushing(brushedDates){
 // get the average of a specific type for each CBG
 getCBGAttrData(selected_sd_eachCBG){
   // aggregate data according to the CBGID
+  const that = this;
   let grouped_sd_eachCBG = d3.group(selected_sd_eachCBG, d => d['origin_census_block_group']);
-  // console.log('grouped_sd_eachCBG', grouped_sd_eachCBG);
-  grouped_sd_eachCBG.forEach(function(value, key){
+  //console.log('grouped_sd_eachCBG', grouped_sd_eachCBG);
+  //console.log("asdasdsa, ", that.type)
+  if(that.type == "median_home_dwell_time"){ 
+    grouped_sd_eachCBG.forEach(function(value, key){
     grouped_sd_eachCBG.set(key, d3.mean(value, d=>parseFloat(d['median_home_dwell_time'])));
   });
+
+  }
+  else if(that.type == "full_time_work_behavior_devices"){
+    grouped_sd_eachCBG.forEach(function(value, key){
+      grouped_sd_eachCBG.set(key, d3.mean(value, d=>parseFloat(d['full_time_work_behavior_devices'])));
+    });
+  }
+  else{
+    grouped_sd_eachCBG.forEach(function(value, key){
+      grouped_sd_eachCBG.set(key, d3.mean(value, d=>parseFloat(d['median_non_home_dwell_time'])));
+    });
+  }
   return grouped_sd_eachCBG;
 } 
 
