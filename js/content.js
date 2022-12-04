@@ -1365,6 +1365,13 @@ drawTable(data){
   let range = this.typeRange[this.type];
   let colorrange = this.colorRange[this.type];
 
+  if(this.type == 'full_time_work_behavior_devices'){
+    range = [0, 10000];
+  }
+  else if(this.type == 'median_non_home_dwell_time'){
+    range = [0, 200];
+  }
+
   // add the colormap bar
   let graGenerator = colorMapsvg.append('linearGradient').attr('id', 'colorMapGrad')
             .attr('x1', '0').attr('x2', '1').attr('y1', '0').attr('y2', '0');
