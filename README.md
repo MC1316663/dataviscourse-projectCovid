@@ -7,7 +7,7 @@ Process book: https://docs.google.com/document/d/1Zb9eB7dAwy_NhykwybYBVYcSgpJdI4
   
 Project website:https://mc1316663.github.io/dataviscourse-projectCovid/Project.html
   
-Video link:
+Video link:https://www.youtube.com/watch?v=MjO6X3kt_10
 
 **<Description>
   
