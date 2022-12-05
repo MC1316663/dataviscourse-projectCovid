@@ -1332,19 +1332,33 @@ drawTable(data){
     .data(d => [d, d, d, d])
     .join('td');
 
-  let date = tableSel.filter((d,i) => i === 0);
-  //date.text(d => console.log(d.date))
-  date.text(d => {if(typeof(d.date_range_start) == "undefined"){return d.Date}else{return d.date_range_start}});
-
-  let home = tableSel.filter((d,i) => i === 1);
-  home.text(d => d.median_home_dwell_time);
-
-  let work = tableSel.filter((d,i) => i === 2);
-  //work.text(d => console.log(d.sum_work_behavior_device))
-  work.text(d => {if(typeof(d.sum_work_behavior_device) == "undefined"){return d.work_behavior_device}else{return d.sum_work_behavior_device}});
-  
-  let nonHome = tableSel.filter((d,i) => i === 3);
-  nonHome.text(d => d.median_non_home_dwell_time);
+    if(this.clickedGeoID == 0 || this.sd_eachCBG.filter(d => d.origin_census_block_group == this.clickedGeoID).length != 0){
+      tableDiv.select('p').remove();
+      let date = tableSel.filter((d,i) => i === 0);
+      //date.text(d => console.log(d.date))
+      date.text(d => {if(typeof(d.date_range_start) == "undefined"){return d.Date}else{return d.date_range_start}});
+    
+      let home = tableSel.filter((d,i) => i === 1);
+      home.text(d => d.median_home_dwell_time);
+    
+      let work = tableSel.filter((d,i) => i === 2);
+      //work.text(d => console.log(d.sum_work_behavior_device))
+      work.text(d => {if(typeof(d.sum_work_behavior_device) == "undefined"){return d.work_behavior_device}else{return d.sum_work_behavior_device}});
+      
+      let nonHome = tableSel.filter((d,i) => i === 3);
+      nonHome.text(d => d.median_non_home_dwell_time);
+      }
+      else{
+        tableDiv.select('p').remove();
+        tableSel.remove();
+        tableDiv.append('p')
+        .text('No data provided for this CBG');
+    
+        let date = tableSel.filter((d,i) => i === 0);
+      //date.text(d => console.log(d.date))
+      date.text(d => {if(typeof(d.date_range_start) == "undefined"){return d.Date}else{return d.date_range_start}});
+    
+      }
 
  }
 

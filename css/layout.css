@@ -72,9 +72,9 @@ body{
   transform: translateY(-50%);
 }
 #description{
-  font-size: 15px;
+  font-size: 17px;
   fill: #4e565f;
-  opacity: 0.6;
+  opacity: 0.8;
   overflow-y: scroll;
   /* text-align: center; */
 }
